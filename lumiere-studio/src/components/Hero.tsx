@@ -80,7 +80,7 @@ export default function Hero() {
 
   return (
     <section id={STAGE_ID} className="relative h-[300vh]">
-      <div className="sticky top-0 h-screen overflow-hidden bg-ink">
+      <div className="sticky top-0 h-[100svh] overflow-hidden bg-ink">
         {/* Mounted once. Cuts crossfade between preloaded textures inside the
             shader, so the WebGL context is created a single time. */}
         <FilmFrame
@@ -106,7 +106,7 @@ export default function Hero() {
         {/* caption */}
         <div className="relative z-30 mx-auto flex h-full max-w-[1440px] flex-col justify-end px-6 pb-[16vh] md:px-12">
           <div key={idx} className="animate-[riseIn_1.1s_cubic-bezier(.16,1,.3,1)]">
-            <p className="text-[10px] uppercase tracking-wide-xs text-bone/70">
+            <p className="text-[11px] uppercase tracking-wide-xs text-bone/70">
               {shot.kicker}
             </p>
             <h1 className="font-display mt-6 max-w-4xl text-[10vw] font-light leading-[0.94] text-bone md:text-[5.2vw]">
@@ -128,13 +128,13 @@ export default function Hero() {
           >
             <a
               href="#start"
-              className="rounded-full bg-bone px-9 py-4 text-[10px] uppercase tracking-wide-xs text-ink transition-colors hover:bg-clay hover:text-bone"
+              className="rounded-full bg-bone px-9 py-4 text-[11px] uppercase tracking-wide-xs text-ink transition-colors hover:bg-clay hover:text-bone"
             >
               Begin the journey
             </a>
             <a
               href="#stories"
-              className="rounded-full border border-bone/35 px-9 py-4 text-[10px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone/10"
+              className="rounded-full border border-bone/35 px-9 py-4 text-[11px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone/10"
             >
               See the work
             </a>

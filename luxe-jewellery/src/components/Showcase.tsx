@@ -51,7 +51,7 @@ export default function Showcase() {
 
   return (
     <section id="collections" ref={wrap} style={{ height: `${PIECES.length * 100}vh` }}>
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         {/* pooled light behind the piece */}
         <div
           className="pointer-events-none absolute left-1/2 top-1/2 h-[110vh] w-[110vh] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60"
@@ -85,7 +85,7 @@ export default function Showcase() {
           }}
         />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-[1400px] items-center gap-8 px-6 md:grid-cols-12 md:px-12">
+        <div className="relative z-10 mx-auto grid w-full max-w-[1400px] items-center gap-4 px-6 md:grid-cols-12 md:gap-8 md:px-12">
           {/* shot list */}
           <div className="order-2 hidden md:order-1 md:col-span-2 md:block">
             <div className="flex flex-col gap-3">
@@ -108,7 +108,7 @@ export default function Showcase() {
                     }`}
                   />
                   <span
-                    className={`text-[10px] uppercase tracking-luxe transition-colors duration-500 ${
+                    className={`text-[11px] uppercase tracking-luxe transition-colors duration-500 ${
                       idx === i ? "text-champagne" : "text-ivory/35"
                     }`}
                   >
@@ -121,7 +121,7 @@ export default function Showcase() {
 
           {/* the piece */}
           <div className="order-1 md:order-2 md:col-span-6">
-            <div className="relative h-[46vh] md:h-[76vh]">
+            <div className="relative h-[30vh] md:h-[76vh]">
               {/* Mounted once. The piece changes by crossfading textures inside
                   the shader, so the WebGL context is never rebuilt. */}
               <JewelCanvas
@@ -143,37 +143,37 @@ export default function Showcase() {
                 exit={{ opacity: 0, y: -22 }}
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               >
-                <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
+                <p className="text-[11px] uppercase tracking-luxe text-champagne/80">
                   {piece.collection}
                 </p>
-                <h3 className="font-display mt-3 text-5xl font-light md:text-6xl">
+                <h3 className="font-display mt-2 text-4xl font-light md:mt-3 md:text-6xl">
                   {piece.name}
                 </h3>
-                <div className="hairline my-7 max-w-[220px]" />
-                <p className="max-w-md text-[15px] font-light leading-relaxed text-ivory/65">
+                <div className="hairline my-4 max-w-[220px] md:my-7" />
+                <p className="line-clamp-3 max-w-md text-[14px] font-light leading-relaxed text-ivory/65 md:line-clamp-none md:text-[15px]">
                   {piece.note}
                 </p>
 
-                <dl className="mt-8 space-y-3 text-[13px]">
+                <dl className="mt-4 hidden space-y-2 text-[13px] sm:block md:mt-8 md:space-y-3">
                   <div className="flex gap-4">
-                    <dt className="w-20 shrink-0 text-[10px] uppercase tracking-[0.18em] text-ivory/35">
+                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/35">
                       Metal
                     </dt>
                     <dd className="text-ivory/75">{piece.metal}</dd>
                   </div>
                   <div className="flex gap-4">
-                    <dt className="w-20 shrink-0 text-[10px] uppercase tracking-[0.18em] text-ivory/35">
+                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/35">
                       Stones
                     </dt>
                     <dd className="text-ivory/75">{piece.stones}</dd>
                   </div>
                 </dl>
 
-                <div className="mt-9 flex items-center gap-7">
+                <div className="mt-5 flex items-center gap-6 md:mt-9 md:gap-7">
                   <span className="font-display text-2xl text-champagne">{piece.price}</span>
                   <a
                     href="#appointment"
-                    className="border-b border-champagne/45 pb-1 text-[10px] uppercase tracking-luxe text-ivory/85 transition-colors hover:text-champagne"
+                    className="inline-flex min-h-11 items-center border-b border-champagne/45 text-[11px] uppercase tracking-luxe text-ivory/85 transition-colors hover:text-champagne"
                   >
                     Enquire
                   </a>

@@ -83,7 +83,7 @@ export default function Hero() {
 
   return (
     <section id={STAGE_ID} className="relative h-[300vh]">
-      <div className="sticky top-0 h-screen overflow-hidden bg-obsidian">
+      <div className="sticky top-0 h-[100svh] overflow-hidden bg-obsidian">
         <CinematicStage targetId={STAGE_ID} className="absolute inset-0" />
 
         {/* letterbox, irises open on load, then frames the whole sequence */}
@@ -109,7 +109,7 @@ export default function Hero() {
         <div className="relative z-30 h-full">
           <Shot from={0} to={0.28} p={p}>
             <p
-              className="text-[10px] uppercase tracking-luxe text-champagne/85"
+              className="text-[11px] uppercase tracking-luxe text-champagne/85"
               style={{
                 opacity: bars ? 1 : 0,
                 transition: "opacity 1.2s ease .6s",
@@ -145,7 +145,7 @@ export default function Hero() {
 
           {/* ── Shot 2: the push in ────────────────────────── */}
           <Shot from={0.38} to={0.62} p={p}>
-            <p className="text-[10px] uppercase tracking-luxe text-champagne/85">
+            <p className="text-[11px] uppercase tracking-luxe text-champagne/85">
               The Atelier
             </p>
             <h2 className="font-display mt-5 max-w-3xl text-[9vw] font-light leading-[0.95] md:text-[5vw]">
@@ -157,7 +157,7 @@ export default function Hero() {
 
           {/* ── Shot 3: the macro ─────────────────────────── */}
           <Shot from={0.72} to={1} p={p}>
-            <p className="text-[10px] uppercase tracking-luxe text-champagne/85">
+            <p className="text-[11px] uppercase tracking-luxe text-champagne/85">
               1.10ct, cut in-house
             </p>
             <h2 className="font-display mt-5 max-w-3xl text-[9vw] font-light leading-[0.95] md:text-[5vw]">
@@ -167,7 +167,7 @@ export default function Hero() {
             </h2>
             <a
               href="#appointment"
-              className="mt-8 inline-block border border-champagne/40 px-10 py-4 text-[10px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne hover:text-obsidian"
+              className="mt-8 inline-block border border-champagne/40 px-10 py-4 text-[11px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne hover:text-obsidian"
             >
               Come and hold it
             </a>

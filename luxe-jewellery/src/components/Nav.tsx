@@ -31,7 +31,10 @@ export default function Nav() {
         }`}
       >
         <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-12">
-          <a href="#top" className="font-display text-2xl tracking-[0.2em] gold-text">
+          <a
+            href="#top"
+            className="font-display gold-text inline-flex min-h-11 items-center text-2xl tracking-[0.2em]"
+          >
             AURELIA
           </a>
 
@@ -40,7 +43,7 @@ export default function Nav() {
               <li key={l.href}>
                 <a
                   href={l.href}
-                  className="group relative text-[11px] uppercase tracking-luxe text-ivory/70 transition-colors hover:text-ivory"
+                  className="group relative inline-flex min-h-11 items-center text-[11px] uppercase tracking-luxe text-ivory/70 transition-colors hover:text-ivory"
                 >
                   {l.label}
                   <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-champagne transition-all duration-500 group-hover:w-full" />
@@ -52,7 +55,7 @@ export default function Nav() {
           <div className="flex items-center gap-5">
             <a
               href="#appointment"
-              className="hidden border border-champagne/40 px-6 py-3 text-[10px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne hover:text-obsidian md:block"
+              className="hidden border border-champagne/40 px-6 py-3 text-[11px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne hover:text-obsidian md:block"
             >
               Book a Viewing
             </a>
@@ -60,7 +63,7 @@ export default function Nav() {
               onClick={() => setOpen((v) => !v)}
               aria-label="Menu"
               aria-expanded={open}
-              className="md:hidden"
+              className="-mr-3 flex h-11 w-11 flex-col items-center justify-center gap-2 md:hidden"
             >
               <span className="block h-px w-7 bg-ivory" />
               <span className="mt-2 block h-px w-7 bg-ivory" />
@@ -90,7 +93,7 @@ export default function Nav() {
             <a
               href="#appointment"
               onClick={() => setOpen(false)}
-              className="mt-6 border border-champagne/40 px-8 py-4 text-[10px] uppercase tracking-luxe text-champagne"
+              className="mt-6 border border-champagne/40 px-8 py-4 text-[11px] uppercase tracking-luxe text-champagne"
             >
               Book a Viewing
             </a>

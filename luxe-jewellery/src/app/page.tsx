@@ -50,7 +50,7 @@ export default function Home() {
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-4">
             <Reveal>
-              <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
+              <p className="text-[11px] uppercase tracking-luxe text-champagne/80">
                 Our position
               </p>
             </Reveal>
@@ -78,7 +78,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1400px] px-6 md:px-12">
           <div className="max-w-2xl">
             <Reveal>
-              <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
+              <p className="text-[11px] uppercase tracking-luxe text-champagne/80">
                 The Atelier
               </p>
             </Reveal>
@@ -122,7 +122,7 @@ export default function Home() {
           <div className="grid items-center gap-16 md:grid-cols-2">
             <div>
               <Reveal>
-                <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
+                <p className="text-[11px] uppercase tracking-luxe text-champagne/80">
                   Provenance
                 </p>
               </Reveal>
@@ -159,7 +159,7 @@ export default function Home() {
       <section id="journal" className="border-t border-champagne/10 py-32 md:py-44">
         <div className="mx-auto max-w-[1400px] px-6 md:px-12">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-luxe text-champagne/80">Journal</p>
+            <p className="text-[11px] uppercase tracking-luxe text-champagne/80">Journal</p>
           </Reveal>
           <div className="mt-14 divide-y divide-champagne/10 border-y border-champagne/10">
             {JOURNAL.map((j, i) => (
@@ -169,7 +169,7 @@ export default function Home() {
                   className="group flex flex-col gap-3 py-9 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:gap-10">
-                    <span className="w-24 shrink-0 text-[10px] uppercase tracking-luxe text-champagne/70">
+                    <span className="w-24 shrink-0 text-[11px] uppercase tracking-luxe text-champagne/70">
                       {j.k}
                     </span>
                     <h3 className="font-display text-2xl font-light transition-colors duration-300 group-hover:text-champagne md:text-3xl">
@@ -200,7 +200,7 @@ export default function Home() {
         />
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
+            <p className="text-[11px] uppercase tracking-luxe text-champagne/80">
               By appointment
             </p>
           </Reveal>
@@ -218,13 +218,13 @@ export default function Home() {
             <div className="mt-12 flex flex-col items-center justify-center gap-5 sm:flex-row">
               <a
                 href="mailto:atelier@aurelia.example"
-                className="bg-champagne px-12 py-5 text-[10px] uppercase tracking-luxe text-obsidian transition-opacity hover:opacity-85"
+                className="bg-champagne px-12 py-5 text-[11px] uppercase tracking-luxe text-obsidian transition-opacity hover:opacity-85"
               >
                 Request an appointment
               </a>
               <a
                 href="tel:+910000000000"
-                className="border border-champagne/30 px-12 py-5 text-[10px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne/10"
+                className="border border-champagne/30 px-12 py-5 text-[11px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne/10"
               >
                 Speak to the atelier
               </a>
@@ -250,7 +250,7 @@ export default function Home() {
                 <a
                   key={l}
                   href="#"
-                  className="text-[10px] uppercase tracking-luxe text-ivory/45 transition-colors hover:text-champagne"
+                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-luxe text-ivory/45 transition-colors hover:text-champagne"
                 >
                   {l}
                 </a>
@@ -258,7 +258,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hairline my-10" />
-          <p className="text-[10px] uppercase tracking-[0.16em] text-ivory/25">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-ivory/25">
             &copy; 2026 Aurelia Fine Jewellery &middot; Hand-made &middot; Signed &middot;
             Guaranteed for life
           </p>

@@ -46,7 +46,7 @@ export default function Nav() {
               <li key={l.href}>
                 <a
                   href={l.href}
-                  className={`group relative text-[11px] uppercase tracking-wide-xs transition-colors ${
+                  className={`group relative inline-flex min-h-11 items-center text-[11px] uppercase tracking-wide-xs transition-colors ${
                     solid ? "text-ink/65 hover:text-ink" : "text-bone/75 hover:text-bone"
                   }`}
                 >
@@ -64,7 +64,7 @@ export default function Nav() {
           <div className="flex items-center gap-5">
             <a
               href="#start"
-              className={`hidden rounded-full px-6 py-3 text-[10px] uppercase tracking-wide-xs transition-colors md:block ${
+              className={`hidden rounded-full px-6 py-3 text-[11px] uppercase tracking-wide-xs transition-colors md:block ${
                 solid
                   ? "bg-clay text-bone hover:bg-ink"
                   : "border border-bone/45 text-bone hover:bg-bone hover:text-ink"
@@ -76,7 +76,7 @@ export default function Nav() {
               onClick={() => setOpen((v) => !v)}
               aria-label="Menu"
               aria-expanded={open}
-              className="md:hidden"
+              className="-mr-3 flex h-11 w-11 flex-col items-center justify-center gap-2 md:hidden"
             >
               <span className={`block h-px w-7 ${solid ? "bg-ink" : "bg-bone"}`} />
               <span className={`mt-2 block h-px w-7 ${solid ? "bg-ink" : "bg-bone"}`} />
@@ -106,7 +106,7 @@ export default function Nav() {
             <a
               href="#start"
               onClick={() => setOpen(false)}
-              className="mt-5 rounded-full bg-clay px-9 py-4 text-[10px] uppercase tracking-wide-xs text-bone"
+              className="mt-5 rounded-full bg-clay px-9 py-4 text-[11px] uppercase tracking-wide-xs text-bone"
             >
               Start your film
             </a>

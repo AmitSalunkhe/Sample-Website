@@ -33,7 +33,7 @@ export default function Home() {
         <div className="grid gap-14 md:grid-cols-12">
           <div className="md:col-span-4">
             <Reveal>
-              <p className="text-[10px] uppercase tracking-wide-xs text-clay">
+              <p className="text-[11px] uppercase tracking-wide-xs text-clay">
                 Why we exist
               </p>
             </Reveal>
@@ -107,7 +107,7 @@ export default function Home() {
       <section id="process" className="mx-auto max-w-[1440px] px-6 py-28 md:px-12 md:py-40">
         <div className="max-w-2xl">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-wide-xs text-clay">How it works</p>
+            <p className="text-[11px] uppercase tracking-wide-xs text-clay">How it works</p>
           </Reveal>
           <h2 className="font-display mt-5 text-3xl font-light leading-tight md:text-5xl">
             <RevealWords text="Four steps, and you only do the first one." />
@@ -152,7 +152,7 @@ export default function Home() {
 
             <div>
               <Reveal>
-                <p className="text-[10px] uppercase tracking-wide-xs text-clay-light">
+                <p className="text-[11px] uppercase tracking-wide-xs text-clay-light">
                   Our most requested film
                 </p>
               </Reveal>
@@ -176,7 +176,7 @@ export default function Home() {
               <Reveal delay={0.42}>
                 <a
                   href="#start"
-                  className="mt-10 inline-block rounded-full border border-bone/35 px-9 py-4 text-[10px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone hover:text-ink"
+                  className="mt-10 inline-block rounded-full border border-bone/35 px-9 py-4 text-[11px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone hover:text-ink"
                 >
                   Enquire about a first birthday film
                 </a>
@@ -189,7 +189,7 @@ export default function Home() {
       {/* Gallery */}
       <section id="gallery" className="mx-auto max-w-[1440px] px-6 py-28 md:px-12 md:py-40">
         <Reveal>
-          <p className="text-[10px] uppercase tracking-wide-xs text-clay">Gallery</p>
+          <p className="text-[11px] uppercase tracking-wide-xs text-clay">Gallery</p>
         </Reveal>
         <h2 className="font-display mt-5 max-w-2xl text-3xl font-light leading-tight md:text-5xl">
           <RevealWords text="Frames we could not bring ourselves to cut." />
@@ -224,7 +224,7 @@ export default function Home() {
       <section className="border-y border-ink/10 bg-bone-deep py-28 md:py-36">
         <div className="mx-auto max-w-[1440px] px-6 md:px-12">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-wide-xs text-clay">
+            <p className="text-[11px] uppercase tracking-wide-xs text-clay">
               From the families
             </p>
           </Reveal>
@@ -238,7 +238,7 @@ export default function Home() {
                   </blockquote>
                   <figcaption className="mt-6">
                     <p className="font-display text-lg">{v.n}</p>
-                    <p className="mt-1 text-[10px] uppercase tracking-wide-xs text-ink-soft/50">
+                    <p className="mt-1 text-[11px] uppercase tracking-wide-xs text-ink-soft/50">
                       {v.m}
                     </p>
                   </figcaption>
@@ -253,7 +253,7 @@ export default function Home() {
       <section id="packages" className="mx-auto max-w-[1440px] px-6 py-28 md:px-12 md:py-40">
         <div className="max-w-2xl">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-wide-xs text-clay">Investment</p>
+            <p className="text-[11px] uppercase tracking-wide-xs text-clay">Investment</p>
           </Reveal>
           <h2 className="font-display mt-5 text-3xl font-light leading-tight md:text-5xl">
             <RevealWords text="Priced plainly, because you have enough to think about." />
@@ -271,7 +271,7 @@ export default function Home() {
                 }`}
               >
                 {p.featured && (
-                  <span className="mb-6 self-start rounded-full bg-clay px-4 py-1.5 text-[9px] uppercase tracking-wide-xs text-bone">
+                  <span className="mb-6 self-start rounded-full bg-clay px-4 py-1.5 text-[11px] uppercase tracking-wide-xs text-bone">
                     Most chosen
                   </span>
                 )}
@@ -307,7 +307,7 @@ export default function Home() {
 
                 <a
                   href="#start"
-                  className={`mt-10 rounded-full px-7 py-4 text-center text-[10px] uppercase tracking-wide-xs transition-colors ${
+                  className={`mt-10 rounded-full px-7 py-4 text-center text-[11px] uppercase tracking-wide-xs transition-colors ${
                     p.featured
                       ? "bg-bone text-ink hover:bg-clay hover:text-bone"
                       : "border border-ink/20 text-ink hover:bg-ink hover:text-bone"
@@ -333,7 +333,7 @@ export default function Home() {
       <section id="start" className="relative overflow-hidden bg-ink py-32 text-bone md:py-44">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <Reveal>
-            <p className="text-[10px] uppercase tracking-wide-xs text-clay-light">
+            <p className="text-[11px] uppercase tracking-wide-xs text-clay-light">
               Start your film
             </p>
           </Reveal>
@@ -351,13 +351,13 @@ export default function Home() {
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <a
                 href="mailto:hello@lumiere.example"
-                className="rounded-full bg-bone px-11 py-5 text-[10px] uppercase tracking-wide-xs text-ink transition-colors hover:bg-clay hover:text-bone"
+                className="rounded-full bg-bone px-11 py-5 text-[11px] uppercase tracking-wide-xs text-ink transition-colors hover:bg-clay hover:text-bone"
               >
                 Begin the journey
               </a>
               <a
                 href="tel:+910000000000"
-                className="rounded-full border border-bone/30 px-11 py-5 text-[10px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone/10"
+                className="rounded-full border border-bone/30 px-11 py-5 text-[11px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone/10"
               >
                 Call the studio
               </a>
@@ -384,14 +384,14 @@ export default function Home() {
                 <a
                   key={l}
                   href="#"
-                  className="text-[10px] uppercase tracking-wide-xs text-bone/50 transition-colors hover:text-clay-light"
+                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-wide-xs text-bone/50 transition-colors hover:text-clay-light"
                 >
                   {l}
                 </a>
               ))}
             </div>
           </div>
-          <p className="mt-12 text-[10px] uppercase tracking-[0.16em] text-bone/30">
+          <p className="mt-12 text-[11px] uppercase tracking-[0.16em] text-bone/30">
             &copy; 2026 Lumière Studio &middot; Your story, beautifully told &middot; Human
             storytelling, made with care
           </p>
