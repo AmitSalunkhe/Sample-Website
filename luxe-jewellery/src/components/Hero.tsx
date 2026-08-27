@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const JewelCanvas = dynamic(() => import("./JewelCanvas"), { ssr: false });
+const Jewel3D = dynamic(() => import("./Jewel3D"), { ssr: false });
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -23,7 +23,7 @@ export default function Hero() {
       />
 
       <motion.div style={{ y, opacity: fade }} className="absolute inset-0">
-        <JewelCanvas src="/jewels/necklace-4.webp" scale={1.25} className="h-full w-full" />
+        <Jewel3D className="h-full w-full" />
       </motion.div>
 
       <motion.div
