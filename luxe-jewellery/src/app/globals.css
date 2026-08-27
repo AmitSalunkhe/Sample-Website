@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian: #0a0908;
+  --color-obsidian-soft: #12100e;
+  --color-champagne: #d4b483;
+  --color-gold: #c9a227;
+  --color-gold-light: #e8d5a3;
+  --color-ivory: #f4efe6;
+  --color-ash: #8a8178;
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-body: var(--font-jost), system-ui, sans-serif;
+}
+
+:root { color-scheme: dark; }
+
+html, body {
+  background: var(--color-obsidian);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--color-gold); color: var(--color-obsidian); }
+
+.font-display { font-family: var(--font-display); }
+
+.tracking-luxe { letter-spacing: 0.32em; }
+
+.gold-text {
+  background: linear-gradient(115deg,#8a6d2f 0%,#d4b483 22%,#f5e7c1 42%,#c9a227 58%,#8a6d2f 78%,#e8d5a3 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: goldShift 9s ease-in-out infinite;
+}
+@keyframes goldShift {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hairline { height:1px; background:linear-gradient(90deg,transparent,rgba(212,180,131,.45),transparent); }
+
+.grain::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:60; opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
