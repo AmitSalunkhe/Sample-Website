@@ -2,9 +2,16 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, ContactShadows } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette, Noise } from "@react-three/postprocessing";
+import {
+  EffectComposer,
+  Bloom,
+  Vignette,
+  Noise,
+  DepthOfField,
+  ChromaticAberration,
+} from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useInView } from "@/lib/useInView";
 
@@ -153,18 +160,24 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
 /* Camera choreography, three shots, cut on scroll                     */
 /* ------------------------------------------------------------------ */
 
-type Shot = { pos: [number, number, number]; look: [number, number, number] };
+type Shot = { pos: [number, number, number]; look: [number, number, number]; focus: number };
 
 const SHOTS: Shot[] = [
   // establishing wide, the piece sits small in a lot of darkness
-  { pos: [0, 0.5, 7.6], look: [0, 0.1, 0] },
+  { pos: [0, 0.5, 7.6], look: [0, 0.1, 0], focus: 7.4 },
   // push in and orbit, catching the light across the band
-  { pos: [2.1, 0.15, 3.9], look: [0, 0.15, 0] },
+  { pos: [2.1, 0.15, 3.9], look: [0, 0.15, 0], focus: 4.0 },
   // macro on the head, prongs and stone fill the frame
-  { pos: [0.35, 1.05, 2.15], look: [0, 0.92, 0] },
+  { pos: [0.35, 1.05, 2.15], look: [0, 0.92, 0], focus: 2.0 },
 ];
 
-function Rig({ progress }: { progress: React.RefObject<number> }) {
+function Rig({
+  progress,
+  focusRef,
+}: {
+  progress: React.RefObject<number>;
+  focusRef: React.RefObject<number>;
+}) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(0, 0.1, 0));
   const pointer = useRef(new THREE.Vector2());
@@ -199,6 +212,8 @@ function Rig({ progress }: { progress: React.RefObject<number> }) {
     camera.position.lerp(targetPos.current, Math.min(dt * 2.4, 1));
     look.current.lerp(targetLook.current, Math.min(dt * 2.4, 1));
     camera.lookAt(look.current);
+
+    focusRef.current = L(a.focus, b.focus, t);
   });
 
   return null;
@@ -261,8 +276,23 @@ export default function CinematicStage({
   );
 }
 
+const CAMERA_FAR = 100;
+
 function StageContents({ targetId }: { targetId: string }) {
   const progress = useStageProgress(targetId);
+  const focusRef = useRef(7.4);
+
+  // Committed through DepthOfField's public prop, and only when it moves enough
+  // to be visible, so this re-renders a few times per shot rather than per frame.
+  const [focus, setFocus] = useState(7.4);
+  const committed = useRef(7.4);
+  useFrame(() => {
+    const f = focusRef.current ?? 7.4;
+    if (Math.abs(f - committed.current) > 0.12) {
+      committed.current = f;
+      setFocus(f);
+    }
+  });
 
   return (
     <>
@@ -277,15 +307,28 @@ function StageContents({ targetId }: { targetId: string }) {
         frames={1}
       />
       <Lights />
-      <Rig progress={progress} />
+      <Rig progress={progress} focusRef={focusRef} />
 
       {/*
-        Depth of field was removed. It was the most expensive pass in the chain,
-        and with the vignette and shutter doing most of the framing work it was
-        not carrying its cost. Bloom still blooms the speculars.
+        Depth of field is back, but at half the resolution and a smaller bokeh
+        than before (height 240 / scale 3, was 480 / 5). It is the shallow focus
+        that made this read as film, and with nineteen transmission passes and a
+        whole extra context now gone there is budget for it again.
       */}
       <EffectComposer multisampling={0}>
+        <DepthOfField
+          focusDistance={focus / CAMERA_FAR}
+          focalLength={0.05}
+          bokehScale={3}
+          height={240}
+        />
         <Bloom intensity={0.8} luminanceThreshold={0.6} luminanceSmoothing={0.3} mipmapBlur />
+        <ChromaticAberration
+          offset={new THREE.Vector2(0.0006, 0.0009)}
+          blendFunction={BlendFunction.NORMAL}
+          radialModulation={false}
+          modulationOffset={0}
+        />
         <Vignette eskil={false} offset={0.22} darkness={0.85} />
         <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.4} />
       </EffectComposer>

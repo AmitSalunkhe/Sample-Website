@@ -33,7 +33,7 @@ const vert = /* glsl */ `
 `;
 
 const frag = /* glsl */ `
-  precision mediump float;
+  precision highp float;
   varying vec2 vUv;
   uniform sampler2D uTexA;
   uniform sampler2D uTexB;

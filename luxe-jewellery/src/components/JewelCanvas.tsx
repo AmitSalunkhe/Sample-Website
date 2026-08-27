@@ -35,7 +35,7 @@ const vert = /* glsl */ `
 `;
 
 const frag = /* glsl */ `
-  precision mediump float;
+  precision highp float;
   varying vec2 vUv;
   uniform sampler2D uTexA;
   uniform sampler2D uTexB;
@@ -47,6 +47,7 @@ const frag = /* glsl */ `
   uniform vec2  uArB;
 
   float lum(vec3 c){ return dot(c, vec3(0.2126,0.7152,0.0722)); }
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
   // fit each photo inside the plane on its own aspect ratio
   vec4 sampleFit(sampler2D t, vec2 uv, vec2 ar) {
@@ -95,10 +96,15 @@ const frag = /* glsl */ `
     float band = smoothstep(0.045, 0.0, abs(fract((uv.x + uv.y) * 0.5 - uTime * 0.09) - 0.5));
     col += goldWarm * band * l * 0.42;
 
-    // cheap bloom stand-in: lift the brightest metal instead of a blur pass
-    col += goldWarm * smoothstep(0.8, 1.0, l) * 0.22;
+    // Halation and grain done in the shader rather than as composer passes.
+    // Same film character, no extra render target for this canvas.
+    float hi = smoothstep(0.78, 1.0, l);
+    col += vec3(1.0, 0.62, 0.28) * hi * 0.20;
 
-    col = (col - 0.5) * 1.06 + 0.5;
+    col = (col - 0.5) * 1.09 + 0.5;
+
+    float g = hash(uv * 900.0 + fract(uTime * 24.0) * 100.0);
+    col += (g - 0.5) * 0.05;
 
     gl_FragColor = vec4(col, base.a);
   }
