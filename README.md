@@ -52,9 +52,20 @@ like a strip passing a gate.
 
 These are demo builds. Three things need real assets swapped in:
 
-1. **`luxe-jewellery`, the "Trinité" piece uses a Cartier product photograph**
-   (the Cartier signature is visible on the pendant), presented as Aurelia's own
-   work. Replace with the client's own product photography before any public use.
+1. **Branded product photography has been removed.** Two of the supplied images
+   were Cartier product shots: `Necklece 1` (signature visible on the pendant)
+   and `Ring2` (the C de Cartier ring, where the interlocking logo *is* the
+   design). Both are deleted from `public/jewels/` and neither is referenced.
+   The piece that used the first is now **Mayura**, a kundan and meenakari
+   bridal necklace, which also suits a Jaipur house far better.
+
+   Note that both files remain in this repository's git history. If that matters
+   for your use, the history needs rewriting; removing them from the working
+   tree does not erase earlier commits.
+
+   Still worth checking: the remaining images are catalogue-style product shots
+   of unknown origin. Confirm the client owns or has licensed each one before
+   any public launch.
 2. **`luxe-jewellery`, `ring-1` is only 400×400** and looks soft at hero size.
    Needs a re-shoot.
 3. **`lumiere-studio`, all photography is Unsplash stock.** Replace with the
