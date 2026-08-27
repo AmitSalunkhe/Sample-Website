@@ -19,7 +19,9 @@ html, body {
   color: var(--color-ivory);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip, not hidden: `hidden` makes body a scroll container and breaks
+     position:sticky on every pinned section. `clip` stops h-scroll without that. */
+  overflow-x: clip;
 }
 
 ::selection { background: var(--color-gold); color: var(--color-obsidian); }

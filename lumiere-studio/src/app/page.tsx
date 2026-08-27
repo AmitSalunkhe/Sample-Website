@@ -3,11 +3,28 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Stories from "@/components/Stories";
 import { Reveal, RevealWords } from "@/components/Reveal";
+import {
+  ScrollProgress,
+  Marquee,
+  Parallax,
+  TiltCard,
+  Counter,
+} from "@/components/MotionBits";
 import { GALLERY, PACKAGES, PROCESS, VOICES, U } from "@/lib/content";
+
+const MARQUEE = [
+  "Weddings",
+  "First Birthdays",
+  "Restorations",
+  "Festivals",
+  "Engagements",
+  "Family Films",
+];
 
 export default function Home() {
   return (
     <main>
+      <ScrollProgress />
       <Nav />
       <Hero />
 
@@ -51,6 +68,36 @@ export default function Home() {
               </div>
             </Reveal>
           </div>
+        </div>
+      </section>
+
+      {/* Marquee band — continuous drift, pauses when you hover it */}
+      <section className="border-y border-ink/10 bg-bone-deep py-10 md:py-14">
+        <Marquee items={MARQUEE} speed={46} className="text-ink/80" />
+      </section>
+
+      {/* Counters — numbers count up as they enter the frame */}
+      <section className="mx-auto max-w-[1440px] px-6 py-24 md:px-12 md:py-32">
+        <div className="grid gap-10 sm:grid-cols-3">
+          {[
+            { to: 412, suffix: "+", label: "Families filmed since 2016" },
+            { to: 68000, suffix: "", label: "Photographs restored" },
+            { to: 20, suffix: " yrs", label: "Archival backup on every film" },
+          ].map((s, i) => (
+            <Reveal key={s.label} delay={i * 0.1}>
+              <div>
+                <Counter
+                  to={s.to}
+                  suffix={s.suffix}
+                  className="font-display block text-5xl font-light text-clay md:text-6xl"
+                />
+                <div className="rule my-5" />
+                <p className="text-[13px] font-light leading-relaxed text-ink-soft/70">
+                  {s.label}
+                </p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
@@ -151,19 +198,23 @@ export default function Home() {
         <div className="mt-14 columns-1 gap-5 sm:columns-2 lg:columns-3">
           {GALLERY.map((id, i) => (
             <Reveal key={id} delay={(i % 3) * 0.08} className="mb-5 break-inside-avoid">
-              <div
-                className={`relative overflow-hidden rounded-sm ${
+              <Parallax
+                speed={i % 3 === 1 ? 0.1 : 0.2}
+                className={`relative rounded-sm ${
                   i % 3 === 0 ? "aspect-[4/5]" : i % 3 === 1 ? "aspect-square" : "aspect-[3/4]"
                 }`}
               >
-                <Image
-                  src={U(id, 900)}
-                  alt="Photography by Lumière"
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-[1.1s] ease-out hover:scale-[1.05]"
-                />
-              </div>
+                {/* the image is oversized so the parallax shift never exposes an edge */}
+                <div className="relative h-[130%] w-full -translate-y-[11%]">
+                  <Image
+                    src={U(id, 900)}
+                    alt="Photography by Lumière"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-[1.1s] ease-out hover:scale-[1.05]"
+                  />
+                </div>
+              </Parallax>
             </Reveal>
           ))}
         </div>
@@ -212,7 +263,7 @@ export default function Home() {
         <div className="mt-16 grid gap-6 lg:grid-cols-3">
           {PACKAGES.map((p, i) => (
             <Reveal key={p.name} delay={i * 0.1}>
-              <div
+              <TiltCard
                 className={`flex h-full flex-col rounded-sm border p-8 md:p-10 ${
                   p.featured
                     ? "border-transparent bg-ink text-bone"
@@ -264,7 +315,7 @@ export default function Home() {
                 >
                   Enquire
                 </a>
-              </div>
+              </TiltCard>
             </Reveal>
           ))}
         </div>

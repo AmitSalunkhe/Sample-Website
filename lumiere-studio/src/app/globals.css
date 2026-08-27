@@ -20,7 +20,9 @@ html, body {
   color: var(--color-ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip, not hidden: `hidden` makes body a scroll container and breaks
+     position:sticky on every pinned section. `clip` stops h-scroll without that. */
+  overflow-x: clip;
 }
 
 ::selection { background: var(--color-clay); color: var(--color-bone); }
@@ -41,4 +43,17 @@ html, body {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* Marquee: two identical tracks side by side, each sliding one full width. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+.group:hover [style*="marquee"] { animation-play-state: paused; }
+
+/* Clip-path wipe used on gallery figures. */
+@keyframes wipeUp {
+  from { clip-path: inset(100% 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
 }
