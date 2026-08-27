@@ -25,3 +25,22 @@ export function useInView<T extends HTMLElement>(margin = "200px") {
 
   return { ref, inView };
 }
+
+/**
+ * Honours the OS "reduce motion" setting, and reacts if the user changes it
+ * without reloading. WebGL canvases use this to render a single frame and stop,
+ * rather than animating continuously at someone who asked for stillness.
+ */
+export function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const on = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  return reduced;
+}

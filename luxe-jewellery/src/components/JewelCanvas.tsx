@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { useRef, useMemo, Suspense, useEffect } from "react";
 import * as THREE from "three";
-import { useInView } from "@/lib/useInView";
+import { useInView, usePrefersReducedMotion } from "@/lib/useInView";
 
 /**
  * One persistent canvas for the whole collection.
@@ -217,12 +217,13 @@ export default function JewelCanvas({
   progressRef?: React.RefObject<number>;
 }) {
   const { ref, inView } = useInView<HTMLDivElement>("250px");
+  const reduced = usePrefersReducedMotion();
 
   return (
     <div ref={ref} className={className}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop={inView ? "always" : "never"}
+        frameloop={reduced ? "demand" : inView ? "always" : "never"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0, 3.35], fov: 45 }}
       >

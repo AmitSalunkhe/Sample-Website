@@ -109,7 +109,7 @@ export default function Showcase() {
                   />
                   <span
                     className={`text-[11px] uppercase tracking-luxe transition-colors duration-500 ${
-                      idx === i ? "text-champagne" : "text-ivory/35"
+                      idx === i ? "text-champagne" : "text-ivory/55"
                     }`}
                   >
                     {String(idx + 1).padStart(2, "0")}
@@ -156,13 +156,13 @@ export default function Showcase() {
 
                 <dl className="mt-4 hidden space-y-2 text-[13px] sm:block md:mt-8 md:space-y-3">
                   <div className="flex gap-4">
-                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/35">
+                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/55">
                       Metal
                     </dt>
                     <dd className="text-ivory/75">{piece.metal}</dd>
                   </div>
                   <div className="flex gap-4">
-                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/35">
+                    <dt className="w-20 shrink-0 text-[11px] uppercase tracking-[0.18em] text-ivory/55">
                       Stones
                     </dt>
                     <dd className="text-ivory/75">{piece.stones}</dd>

@@ -42,6 +42,9 @@ const PROOF: [string, string][] = [
 export default function Home() {
   return (
     <main>
+      <a className="skip-link" href="#collections">
+        Skip to collections
+      </a>
       <Nav />
       <Hero />
 
@@ -91,7 +94,7 @@ export default function Home() {
             {CRAFT.map((c, i) => (
               <Reveal key={c.n} delay={i * 0.12}>
                 <div className="group">
-                  <span className="font-display text-6xl font-light text-champagne/25 transition-colors duration-500 group-hover:text-champagne/60">
+                  <span className="font-display text-6xl font-light text-champagne/55 transition-colors duration-500 group-hover:text-champagne/60">
                     {c.n}
                   </span>
                   <div className="hairline my-6" />
@@ -176,7 +179,7 @@ export default function Home() {
                       {j.t}
                     </h3>
                   </div>
-                  <span className="text-[11px] uppercase tracking-[0.16em] text-ivory/35">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-ivory/55">
                     {j.d}
                   </span>
                 </a>
@@ -239,7 +242,7 @@ export default function Home() {
           <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="font-display gold-text text-3xl tracking-[0.2em]">AURELIA</p>
-              <p className="mt-4 max-w-xs text-[13px] font-light leading-relaxed text-ivory/45">
+              <p className="mt-4 max-w-xs text-[13px] font-light leading-relaxed text-ivory/60">
                 Johari Bazaar, Jaipur &middot; Est. 1974
                 <br />
                 Open Tuesday to Saturday, by appointment.
@@ -250,7 +253,7 @@ export default function Home() {
                 <a
                   key={l}
                   href="#"
-                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-luxe text-ivory/45 transition-colors hover:text-champagne"
+                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-luxe text-ivory/60 transition-colors hover:text-champagne"
                 >
                   {l}
                 </a>
@@ -258,7 +261,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hairline my-10" />
-          <p className="text-[11px] uppercase tracking-[0.16em] text-ivory/25">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-ivory/55">
             &copy; 2026 Aurelia Fine Jewellery &middot; Hand-made &middot; Signed &middot;
             Guaranteed for life
           </p>

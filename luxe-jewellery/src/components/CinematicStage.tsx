@@ -13,7 +13,7 @@ import {
 import { BlendFunction } from "postprocessing";
 import { Suspense, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { useInView } from "@/lib/useInView";
+import { useInView, usePrefersReducedMotion } from "@/lib/useInView";
 
 const GOLD = "#d4a244";
 
@@ -259,12 +259,14 @@ export default function CinematicStage({
   className?: string;
 }) {
   const { ref, inView } = useInView<HTMLDivElement>("200px");
+  const reduced = usePrefersReducedMotion();
 
   return (
     <div ref={ref} className={className}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop={inView ? "always" : "never"}
+        // reduced motion: draw the scene once, then hold still
+        frameloop={reduced ? "demand" : inView ? "always" : "never"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0.5, 7.6], fov: 40, far: 100 }}
       >

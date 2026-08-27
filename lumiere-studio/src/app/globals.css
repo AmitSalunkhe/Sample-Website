@@ -5,7 +5,7 @@
   --color-bone-deep: #ebe4da;
   --color-ink: #16130f;
   --color-ink-soft: #3a332b;
-  --color-clay: #b4602f;
+  --color-clay: #9e5222;
   --color-clay-light: #d98d5c;
   --color-sage: #7c8471;
   --color-mist: #a39a8d;
@@ -66,4 +66,41 @@ html, body {
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(26px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- accessibility --- */
+
+/* Every interactive control gets a visible keyboard ring. Nothing here fires on
+   mouse click, so the design is untouched for pointer users. */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #9e5222;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Skip link: off screen until focused, then pinned top-left. */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transform: translateY(-120%);
+  transition: transform .18s ease;
+  background: #9e5222;
+  color: #f6f2ec;
+  padding: 0.85rem 1.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Reduced motion: stop the scroll choreography as well as the CSS. The WebGL
+   canvases are separately switched to render a single frame in the components. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
 }

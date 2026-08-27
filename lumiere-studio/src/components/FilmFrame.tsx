@@ -6,7 +6,7 @@ import { EffectComposer, Bloom, Vignette, Noise } from "@react-three/postprocess
 import { BlendFunction } from "postprocessing";
 import { useRef, useMemo, Suspense, useEffect } from "react";
 import * as THREE from "three";
-import { useInView } from "@/lib/perf";
+import { useInView, usePrefersReducedMotion } from "@/lib/perf";
 
 /**
  * A photograph rendered as film rather than as a flat asset.
@@ -191,6 +191,7 @@ export default function FilmFrame({
 }) {
   const vel = useRef(0);
   const { ref, inView } = useInView<HTMLDivElement>("200px");
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
     if (!inView) return;
@@ -214,7 +215,7 @@ export default function FilmFrame({
     <div ref={ref} className={className}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop={inView ? "always" : "never"}
+        frameloop={reduced ? "demand" : inView ? "always" : "never"}
         gl={{ antialias: false, powerPreference: "high-performance" }}
         orthographic
         camera={{ position: [0, 0, 1], zoom: 1, left: -1, right: 1, top: 1, bottom: -1 }}

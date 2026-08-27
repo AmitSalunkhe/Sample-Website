@@ -24,6 +24,9 @@ const MARQUEE = [
 export default function Home() {
   return (
     <main>
+      <a className="skip-link" href="#stories">
+        Skip to main content
+      </a>
       <ScrollProgress />
       <Nav />
       <Hero />
@@ -60,7 +63,7 @@ export default function Home() {
                   <div key={t}>
                     <div className="rule mb-5" />
                     <h3 className="font-display text-lg">{t}</h3>
-                    <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-soft/70">
+                    <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-soft/85">
                       {d}
                     </p>
                   </div>
@@ -92,7 +95,7 @@ export default function Home() {
                   className="font-display block text-5xl font-light text-clay md:text-6xl"
                 />
                 <div className="rule my-5" />
-                <p className="text-[13px] font-light leading-relaxed text-ink-soft/70">
+                <p className="text-[13px] font-light leading-relaxed text-ink-soft/85">
                   {s.label}
                 </p>
               </div>
@@ -118,13 +121,13 @@ export default function Home() {
           {PROCESS.map((p, i) => (
             <Reveal key={p.n} delay={i * 0.1}>
               <div className="grid gap-4 py-10 md:grid-cols-12 md:gap-10">
-                <span className="font-display text-4xl font-light text-clay/45 md:col-span-2 md:text-5xl">
+                <span className="font-display text-4xl font-light text-clay md:col-span-2 md:text-5xl">
                   {p.n}
                 </span>
                 <h3 className="font-display text-2xl font-light md:col-span-4 md:text-3xl">
                   {p.t}
                 </h3>
-                <p className="text-[14px] font-light leading-relaxed text-ink-soft/75 md:col-span-6">
+                <p className="text-[14px] font-light leading-relaxed text-ink-soft/85 md:col-span-6">
                   {p.d}
                 </p>
               </div>
@@ -232,13 +235,13 @@ export default function Home() {
             {VOICES.map((v, i) => (
               <Reveal key={v.n} delay={i * 0.12}>
                 <figure>
-                  <span className="font-display text-5xl leading-none text-clay/40">&ldquo;</span>
+                  <span className="font-display text-5xl leading-none text-clay/80">&ldquo;</span>
                   <blockquote className="mt-4 text-[15px] font-light leading-relaxed text-ink-soft">
                     {v.q}
                   </blockquote>
                   <figcaption className="mt-6">
                     <p className="font-display text-lg">{v.n}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-wide-xs text-ink-soft/50">
+                    <p className="mt-1 text-[11px] uppercase tracking-wide-xs text-ink-soft/85">
                       {v.m}
                     </p>
                   </figcaption>
@@ -278,7 +281,7 @@ export default function Home() {
                 <h3 className="font-display text-2xl font-light md:text-3xl">{p.name}</h3>
                 <p
                   className={`mt-2 text-[12px] font-light leading-relaxed ${
-                    p.featured ? "text-bone/60" : "text-ink-soft/60"
+                    p.featured ? "text-bone/60" : "text-ink-soft/85"
                   }`}
                 >
                   {p.for}
@@ -296,7 +299,7 @@ export default function Home() {
                     <li
                       key={inc}
                       className={`flex gap-3 text-[13px] font-light leading-relaxed ${
-                        p.featured ? "text-bone/75" : "text-ink-soft/75"
+                        p.featured ? "text-bone/75" : "text-ink-soft/85"
                       }`}
                     >
                       <span className={p.featured ? "text-clay-light" : "text-clay"}>·</span>
@@ -321,7 +324,7 @@ export default function Home() {
         </div>
 
         <Reveal delay={0.2}>
-          <p className="mt-10 text-[13px] font-light text-ink-soft/60">
+          <p className="mt-10 text-[13px] font-light text-ink-soft/85">
             Travel outside Maharashtra is quoted separately, at cost. We take a
             limited number of weddings each season so that nobody is handed to a
             second team.
@@ -373,7 +376,7 @@ export default function Home() {
           <div className="flex flex-col gap-9 pt-12 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="font-display text-2xl tracking-[0.14em]">LUMIÈRE</p>
-              <p className="mt-4 max-w-xs text-[13px] font-light leading-relaxed text-bone/50">
+              <p className="mt-4 max-w-xs text-[13px] font-light leading-relaxed text-bone/65">
                 Photography &amp; cinematic family films
                 <br />
                 Pune &middot; shooting across India
@@ -384,14 +387,14 @@ export default function Home() {
                 <a
                   key={l}
                   href="#"
-                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-wide-xs text-bone/50 transition-colors hover:text-clay-light"
+                  className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-wide-xs text-bone/65 transition-colors hover:text-clay-light"
                 >
                   {l}
                 </a>
               ))}
             </div>
           </div>
-          <p className="mt-12 text-[11px] uppercase tracking-[0.16em] text-bone/30">
+          <p className="mt-12 text-[11px] uppercase tracking-[0.16em] text-bone/60">
             &copy; 2026 Lumière Studio &middot; Your story, beautifully told &middot; Human
             storytelling, made with care
           </p>

@@ -53,3 +53,40 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+
+/* --- accessibility --- */
+
+/* Every interactive control gets a visible keyboard ring. Nothing here fires on
+   mouse click, so the design is untouched for pointer users. */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #d4b483;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Skip link: off screen until focused, then pinned top-left. */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transform: translateY(-120%);
+  transition: transform .18s ease;
+  background: #d4b483;
+  color: #0a0908;
+  padding: 0.85rem 1.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Reduced motion: stop the scroll choreography as well as the CSS. The WebGL
+   canvases are separately switched to render a single frame in the components. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+}

@@ -80,7 +80,7 @@ export default function Stories() {
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-8">
                 <div className="flex items-baseline justify-between">
                   <h3 className="font-display text-3xl font-light md:text-4xl">{s.title}</h3>
-                  <span className="text-[11px] uppercase tracking-wide-xs text-bone/50">
+                  <span className="text-[11px] uppercase tracking-wide-xs text-bone/65">
                     {s.place}
                   </span>
                 </div>
@@ -89,7 +89,7 @@ export default function Stories() {
                 </p>
               </div>
 
-              <span className="absolute left-7 top-7 text-[11px] uppercase tracking-wide-xs text-bone/45 md:left-8 md:top-8">
+              <span className="absolute left-7 top-7 text-[11px] uppercase tracking-wide-xs text-bone/65 md:left-8 md:top-8">
                 {String(i + 1).padStart(2, "0")} / {String(STORIES.length).padStart(2, "0")}
               </span>
             </article>
