@@ -2,23 +2,22 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import {
-  EffectComposer,
-  Bloom,
-  Vignette,
-  Noise,
-  ChromaticAberration,
-} from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, Noise } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { useRef, useMemo, Suspense, useEffect } from "react";
 import * as THREE from "three";
+import { useInView } from "@/lib/perf";
 
 /**
  * A photograph rendered as film rather than as a flat asset.
- * Scroll velocity bends the frame, halation blooms in the highlights and the
- * emulsion grain moves, so a still behaves like a running projector. A slow
- * Ken Burns push is driven by the pinned sequence's progress, and the whole
- * frame is graded through bloom, aberration, vignette and grain.
+ *
+ * Every frame of the sequence is preloaded and the cut is a crossfade between
+ * two samplers, so this canvas mounts once and its WebGL context is never torn
+ * down. Remounting per shot, as this did before, churned contexts until the
+ * browser began dropping them, which is what made the page blink.
+ *
+ * Scroll velocity bends the frame, halation blooms in the highlights, the
+ * emulsion grain moves, and a Ken Burns push runs off the shot's progress.
  */
 const vert = /* glsl */ `
   varying vec2 vUv;
@@ -29,42 +28,54 @@ const vert = /* glsl */ `
     vec3 p = position;
     float bend = sin(uv.x * 3.14159) * uVel * 0.55;
     p.y += bend;
-    p.z += sin(uv.x * 6.0 + uTime * 0.5) * abs(uVel) * 0.35;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
   }
 `;
 
 const frag = /* glsl */ `
-  precision highp float;
+  precision mediump float;
   varying vec2 vUv;
-  uniform sampler2D uTex;
+  uniform sampler2D uTexA;
+  uniform sampler2D uTexB;
+  uniform float uMix;
   uniform float uTime;
   uniform float uVel;
   uniform float uReveal;
   uniform float uProgress;
-  uniform vec2  uCover;
+  uniform vec2  uCoverA;
+  uniform vec2  uCoverB;
 
   float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float lum(vec3 c){ return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
 
   void main() {
-    vec2 uv = (vUv - 0.5) * uCover + 0.5;
-
     // Ken Burns: a slow push with a touch of drift, tied to the sequence
     float zoom = 1.0 - uProgress * 0.14;
     vec2 pan = vec2(uProgress * 0.03, uProgress * -0.02);
-    uv = (uv - 0.5) * zoom + 0.5 + pan;
 
+    vec2 base = (vUv - 0.5);
     // lens breathing on fast scroll
-    uv = (uv - 0.5) * (1.0 - abs(uVel) * 0.06) + 0.5;
+    base *= (1.0 - abs(uVel) * 0.06);
 
-    float r2 = dot(uv - 0.5, uv - 0.5);
+    vec2 uvA = base * uCoverA * zoom + 0.5 + pan;
+    vec2 uvB = base * uCoverB * zoom + 0.5 + pan;
+
+    float r2 = dot(base, base);
     float ca = (0.0016 + abs(uVel) * 0.008) * r2 * 4.0;
-    vec2 dir = normalize(uv - 0.5 + 1e-5);
-    vec3 col;
-    col.r = texture2D(uTex, uv + dir * ca).r;
-    col.g = texture2D(uTex, uv).g;
-    col.b = texture2D(uTex, uv - dir * ca).b;
+    vec2 dir = normalize(base + 1e-5);
+
+    // aberration applied on the mixed result: three taps, not six
+    vec3 a = vec3(
+      texture2D(uTexA, uvA + dir * ca).r,
+      texture2D(uTexA, uvA).g,
+      texture2D(uTexA, uvA - dir * ca).b
+    );
+    vec3 b = vec3(
+      texture2D(uTexB, uvB + dir * ca).r,
+      texture2D(uTexB, uvB).g,
+      texture2D(uTexB, uvB - dir * ca).b
+    );
+    vec3 col = mix(a, b, uMix);
 
     float hi = smoothstep(0.62, 1.0, lum(col));
     col += vec3(0.85, 0.42, 0.16) * hi * 0.16;
@@ -75,7 +86,7 @@ const frag = /* glsl */ `
 
     col = clamp((col - 0.5) * 1.07 + 0.5, 0.0, 1.0);
 
-    float g = hash(uv * 900.0 + fract(uTime * 24.0) * 100.0);
+    float g = hash(vUv * 900.0 + fract(uTime * 24.0) * 100.0);
     col += (g - 0.5) * 0.055;
 
     float wipe = smoothstep(uReveal - 0.28, uReveal + 0.02, 1.0 - vUv.y);
@@ -86,28 +97,60 @@ const frag = /* glsl */ `
 `;
 
 function Frame({
-  src,
+  sources,
+  index,
   vel,
   progressRef,
 }: {
-  src: string;
+  sources: string[];
+  index: number;
   vel: React.RefObject<number>;
   progressRef?: React.RefObject<number>;
 }) {
-  const tex = useTexture(src);
+  const textures = useTexture(sources);
+  const list = useMemo(
+    () => (Array.isArray(textures) ? textures : [textures]),
+    [textures]
+  ) as THREE.Texture[];
+
   const mat = useRef<THREE.ShaderMaterial>(null);
+  const from = useRef(index);
+  const to = useRef(index);
 
   const uniforms = useMemo(
     () => ({
-      uTex: { value: tex },
+      uTexA: { value: list[index] },
+      uTexB: { value: list[index] },
+      uMix: { value: 1 },
       uTime: { value: 0 },
       uVel: { value: 0 },
       uReveal: { value: 0 },
       uProgress: { value: 0 },
-      uCover: { value: new THREE.Vector2(1, 1) },
+      uCoverA: { value: new THREE.Vector2(1, 1) },
+      uCoverB: { value: new THREE.Vector2(1, 1) },
     }),
-    [tex]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
+
+  useEffect(() => {
+    if (!mat.current) return;
+    const u = mat.current.uniforms;
+    from.current = to.current;
+    to.current = index;
+    u.uTexA.value = list[from.current];
+    u.uTexB.value = list[to.current];
+    u.uMix.value = 0;
+  }, [index, list]);
+
+  const cover = (t: THREE.Texture, w: number, h: number, out: THREE.Vector2) => {
+    const img = t.image as { width?: number; height?: number } | undefined;
+    if (!img?.width || !img?.height) return;
+    const screenAR = w / h;
+    const imgAR = img.width / img.height;
+    if (screenAR > imgAR) out.set(1, imgAR / screenAR);
+    else out.set(screenAR / imgAR, 1);
+  };
 
   useFrame((state, dt) => {
     if (!mat.current) return;
@@ -115,87 +158,80 @@ function Frame({
     u.uTime.value = state.clock.elapsedTime;
     u.uVel.value = THREE.MathUtils.lerp(u.uVel.value, vel.current ?? 0, Math.min(dt * 5, 1));
     u.uReveal.value = THREE.MathUtils.lerp(u.uReveal.value, 1.35, Math.min(dt * 1.1, 1));
+    u.uMix.value = THREE.MathUtils.lerp(u.uMix.value, 1, Math.min(dt * 2.2, 1));
     u.uProgress.value = THREE.MathUtils.lerp(
       u.uProgress.value,
       progressRef?.current ?? 0,
       Math.min(dt * 2, 1)
     );
 
-    const img = tex.image as HTMLImageElement | undefined;
-    if (img?.width) {
-      const { width, height } = state.size;
-      const screenAR = width / height;
-      const imgAR = img.width / img.height;
-      const c = u.uCover.value as THREE.Vector2;
-      if (screenAR > imgAR) c.set(1, imgAR / screenAR);
-      else c.set(screenAR / imgAR, 1);
-    }
+    const { width, height } = state.size;
+    cover(list[from.current], width, height, u.uCoverA.value as THREE.Vector2);
+    cover(list[to.current], width, height, u.uCoverB.value as THREE.Vector2);
   });
 
   return (
     <mesh>
-      <planeGeometry args={[2, 2, 64, 64]} />
+      <planeGeometry args={[2, 2, 32, 32]} />
       <shaderMaterial ref={mat} vertexShader={vert} fragmentShader={frag} uniforms={uniforms} />
     </mesh>
   );
 }
 
 export default function FilmFrame({
-  src,
+  sources,
+  index,
   className = "",
   progressRef,
-  graded = true,
 }: {
-  src: string;
+  sources: string[];
+  index: number;
   className?: string;
   progressRef?: React.RefObject<number>;
-  graded?: boolean;
 }) {
   const vel = useRef(0);
+  const { ref, inView } = useInView<HTMLDivElement>("200px");
 
   useEffect(() => {
+    if (!inView) return;
     let last = window.scrollY;
     let raf = 0;
     const tick = () => {
       const now = window.scrollY;
-      const d = (now - last) / Math.max(window.innerHeight, 1);
+      vel.current = THREE.MathUtils.clamp(
+        ((now - last) / Math.max(window.innerHeight, 1)) * 3.2,
+        -1,
+        1
+      );
       last = now;
-      vel.current = THREE.MathUtils.clamp(d * 3.2, -1, 1);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [inView]);
 
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       <Canvas
-        dpr={[1, 2]}
-        gl={{ antialias: true }}
+        dpr={[1, 1.5]}
+        frameloop={inView ? "always" : "never"}
+        gl={{ antialias: false, powerPreference: "high-performance" }}
         orthographic
         camera={{ position: [0, 0, 1], zoom: 1, left: -1, right: 1, top: 1, bottom: -1 }}
       >
         <Suspense fallback={null}>
-          <Frame src={src} vel={vel} progressRef={progressRef} />
+          <Frame sources={sources} index={index} vel={vel} progressRef={progressRef} />
 
-          {graded && (
-            <EffectComposer multisampling={0}>
-              <Bloom
-                intensity={0.55}
-                luminanceThreshold={0.68}
-                luminanceSmoothing={0.35}
-                mipmapBlur
-              />
-              <ChromaticAberration
-                offset={new THREE.Vector2(0.0004, 0.0006)}
-                blendFunction={BlendFunction.NORMAL}
-                radialModulation={false}
-                modulationOffset={0}
-              />
-              <Vignette eskil={false} offset={0.26} darkness={0.72} />
-              <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.3} />
-            </EffectComposer>
-          )}
+          <EffectComposer multisampling={0}>
+            <Bloom
+              intensity={0.5}
+              luminanceThreshold={0.7}
+              luminanceSmoothing={0.35}
+              mipmapBlur
+            />
+            <Vignette eskil={false} offset={0.26} darkness={0.72} />
+            <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.28} />
+          </EffectComposer>
         </Suspense>
       </Canvas>
     </div>

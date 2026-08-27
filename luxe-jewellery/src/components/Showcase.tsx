@@ -10,6 +10,8 @@ import {
 import dynamic from "next/dynamic";
 import { PIECES } from "@/lib/pieces";
 
+const SOURCES = PIECES.map((p) => p.src);
+
 const JewelCanvas = dynamic(() => import("./JewelCanvas"), { ssr: false });
 
 /**
@@ -120,23 +122,14 @@ export default function Showcase() {
           {/* the piece */}
           <div className="order-1 md:order-2 md:col-span-6">
             <div className="relative h-[46vh] md:h-[76vh]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={piece.id}
-                  initial={{ opacity: 0, scale: 1.08, filter: "blur(16px)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 0.97, filter: "blur(14px)" }}
-                  transition={{ duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0"
-                >
-                  <JewelCanvas
-                    src={piece.src}
-                    scale={piece.scale ?? 1}
-                    className="h-full w-full"
-                    progressRef={pieceProgress}
-                  />
-                </motion.div>
-              </AnimatePresence>
+              {/* Mounted once. The piece changes by crossfading textures inside
+                  the shader, so the WebGL context is never rebuilt. */}
+              <JewelCanvas
+                sources={SOURCES}
+                index={i}
+                className="absolute inset-0 h-full w-full"
+                progressRef={pieceProgress}
+              />
             </div>
           </div>
 

@@ -3,9 +3,6 @@ import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
 import { Reveal, RevealWords } from "@/components/Reveal";
 
-// One WebGL layer behind the whole document, so every section sits in 3D.
-import SceneBackdrop from "@/components/SceneBackdropMount";
-
 const CRAFT = [
   {
     n: "01",
@@ -45,7 +42,6 @@ const PROOF: [string, string][] = [
 export default function Home() {
   return (
     <main>
-      <SceneBackdrop />
       <Nav />
       <Hero />
 

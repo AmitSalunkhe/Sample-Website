@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useTicker, useInView, prefersReducedMotion } from "@/lib/perf";
 
 /* ------------------------------------------------------------------ */
 /* Scroll progress, a hairline that fills as you move down the page   */
@@ -9,17 +10,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 export function ScrollProgress() {
   const bar = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const p = max > 0 ? window.scrollY / max : 0;
-      if (bar.current) bar.current.style.transform = `scaleX(${p})`;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  useTicker(() => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const p = max > 0 ? window.scrollY / max : 0;
+    if (bar.current) bar.current.style.transform = `scaleX(${p})`;
+  });
 
   return (
     <div className="fixed inset-x-0 top-0 z-[60] h-[2px] bg-transparent">
@@ -84,42 +79,19 @@ export function Parallax({
   speed?: number;
   className?: string;
 }) {
-  const wrap = useRef<HTMLDivElement>(null);
+  const { ref: wrap, inView } = useInView<HTMLDivElement>("200px");
   const inner = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // shared frame loop, and only while this figure is actually on screen
+  useTicker(() => {
     const el = wrap.current;
     const target = inner.current;
     if (!el || !target) return;
-
-    let raf = 0;
-    let visible = false;
-
-    const io = new IntersectionObserver(
-      ([e]) => {
-        visible = e.isIntersecting;
-      },
-      { rootMargin: "200px 0px" }
-    );
-    io.observe(el);
-
-    const tick = () => {
-      if (visible) {
-        const r = el.getBoundingClientRect();
-        // 0 when the element is centred, negative above, positive below
-        const fromCentre = r.top + r.height / 2 - window.innerHeight / 2;
-        target.style.transform = `translate3d(0, ${(-fromCentre * speed).toFixed(2)}px, 0)`;
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      io.disconnect();
-    };
-  }, [speed]);
+    const r = el.getBoundingClientRect();
+    // 0 when the element is centred, negative above, positive below
+    const fromCentre = r.top + r.height / 2 - window.innerHeight / 2;
+    target.style.transform = `translate3d(0, ${(-fromCentre * speed).toFixed(2)}px, 0)`;
+  }, inView && !prefersReducedMotion());
 
   return (
     <div ref={wrap} className={`overflow-hidden ${className}`}>

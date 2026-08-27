@@ -1,18 +1,12 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, ContactShadows, MeshTransmissionMaterial } from "@react-three/drei";
-import {
-  EffectComposer,
-  Bloom,
-  DepthOfField,
-  Vignette,
-  Noise,
-  ChromaticAberration,
-} from "@react-three/postprocessing";
+import { Environment, Lightformer, ContactShadows } from "@react-three/drei";
+import { EffectComposer, Bloom, Vignette, Noise } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useInView } from "@/lib/useInView";
 
 const GOLD = "#d4a244";
 
@@ -33,8 +27,15 @@ function useStageProgress(targetId: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* The ring                                                            */
+/* Materials                                                           */
 /* ------------------------------------------------------------------ */
+/*
+ * The stone used to be MeshTransmissionMaterial, which re-renders the scene
+ * into a buffer every single frame, and the eighteen pave stones each carried
+ * their own transmission pass on top of that. Together they were the largest
+ * cost on the page. A polished dielectric that simply reflects the environment
+ * hard reads almost identically at this scale and costs nothing per frame.
+ */
 
 function Diamond() {
   const geo = useMemo(() => {
@@ -45,22 +46,17 @@ function Diamond() {
   }, []);
 
   return (
-    <mesh geometry={geo} castShadow>
-      <MeshTransmissionMaterial
-        samples={6}
-        resolution={256}
-        transmission={1}
-        thickness={0.55}
-        ior={2.42}
-        chromaticAberration={0.38}
-        anisotropy={0.3}
-        distortion={0.15}
-        distortionScale={0.3}
-        temporalDistortion={0.05}
-        clearcoat={1}
-        attenuationDistance={2}
-        attenuationColor="#ffffff"
+    <mesh geometry={geo}>
+      <meshPhysicalMaterial
         color="#ffffff"
+        metalness={0.05}
+        roughness={0.02}
+        clearcoat={1}
+        clearcoatRoughness={0}
+        envMapIntensity={3.2}
+        iridescence={0.6}
+        iridescenceIOR={2.0}
+        flatShading
       />
     </mesh>
   );
@@ -78,21 +74,25 @@ function Pave({ count = 18, radius = 0.86 }) {
     return out;
   }, [count, radius]);
 
+  // one geometry and one material shared across every stone
+  const geo = useMemo(() => new THREE.OctahedronGeometry(0.05, 0), []);
+  const mat = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: "#ffffff",
+        metalness: 0.05,
+        roughness: 0.02,
+        clearcoat: 1,
+        envMapIntensity: 3,
+        flatShading: true,
+      }),
+    []
+  );
+
   return (
     <group>
       {stones.map((p, i) => (
-        <mesh key={i} position={p} castShadow>
-          <octahedronGeometry args={[0.05, 0]} />
-          <meshPhysicalMaterial
-            color="#ffffff"
-            metalness={0}
-            roughness={0}
-            transmission={0.9}
-            thickness={0.2}
-            ior={2.42}
-            clearcoat={1}
-          />
-        </mesh>
+        <mesh key={i} position={p} geometry={geo} material={mat} />
       ))}
     </group>
   );
@@ -101,11 +101,15 @@ function Pave({ count = 18, radius = 0.86 }) {
 function Ring({ progress }: { progress: React.RefObject<number> }) {
   const group = useRef<THREE.Group>(null);
 
+  const goldMat = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.13 }),
+    []
+  );
+  const prongGeo = useMemo(() => new THREE.CapsuleGeometry(0.022, 0.3, 3, 6), []);
+
   useFrame((state, dt) => {
     if (!group.current) return;
     const p = progress.current ?? 0;
-    // a slow constant turn, accelerated slightly by scroll, the piece is always
-    // moving, so a still frame never looks like a static image
     group.current.rotation.y += dt * 0.3 + p * dt * 1.2;
     group.current.rotation.x = THREE.MathUtils.lerp(
       group.current.rotation.x,
@@ -116,13 +120,8 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
 
   return (
     <group ref={group}>
-      <mesh castShadow receiveShadow>
-        <torusGeometry args={[0.86, 0.085, 48, 160]} />
-        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.13} />
-      </mesh>
-      <mesh>
-        <torusGeometry args={[0.86, 0.055, 32, 120]} />
-        <meshStandardMaterial color="#b8873a" metalness={1} roughness={0.3} />
+      <mesh material={goldMat}>
+        <torusGeometry args={[0.86, 0.085, 24, 96]} />
       </mesh>
 
       <Pave />
@@ -131,15 +130,16 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
         {[0, 1, 2, 3, 4, 5].map((i) => {
           const a = (i / 6) * Math.PI * 2;
           return (
-            <mesh key={i} position={[Math.cos(a) * 0.2, 0.06, Math.sin(a) * 0.2]} castShadow>
-              <capsuleGeometry args={[0.022, 0.3, 4, 8]} />
-              <meshStandardMaterial color={GOLD} metalness={1} roughness={0.16} />
-            </mesh>
+            <mesh
+              key={i}
+              position={[Math.cos(a) * 0.2, 0.06, Math.sin(a) * 0.2]}
+              geometry={prongGeo}
+              material={goldMat}
+            />
           );
         })}
-        <mesh position={[0, -0.09, 0]} castShadow>
-          <cylinderGeometry args={[0.19, 0.13, 0.12, 24]} />
-          <meshStandardMaterial color={GOLD} metalness={1} roughness={0.18} />
+        <mesh material={goldMat} position={[0, -0.09, 0]}>
+          <cylinderGeometry args={[0.19, 0.13, 0.12, 16]} />
         </mesh>
         <group position={[0, 0.16, 0]}>
           <Diamond />
@@ -150,66 +150,55 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Camera choreography, three shots, cut on scroll                    */
+/* Camera choreography, three shots, cut on scroll                     */
 /* ------------------------------------------------------------------ */
 
-type Shot = { pos: [number, number, number]; look: [number, number, number]; focus: number };
+type Shot = { pos: [number, number, number]; look: [number, number, number] };
 
 const SHOTS: Shot[] = [
   // establishing wide, the piece sits small in a lot of darkness
-  { pos: [0, 0.5, 7.6], look: [0, 0.1, 0], focus: 7.4 },
+  { pos: [0, 0.5, 7.6], look: [0, 0.1, 0] },
   // push in and orbit, catching the light across the band
-  { pos: [2.1, 0.15, 3.9], look: [0, 0.15, 0], focus: 4.0 },
+  { pos: [2.1, 0.15, 3.9], look: [0, 0.15, 0] },
   // macro on the head, prongs and stone fill the frame
-  { pos: [0.35, 1.05, 2.15], look: [0, 0.92, 0], focus: 2.0 },
+  { pos: [0.35, 1.05, 2.15], look: [0, 0.92, 0] },
 ];
 
-function lerpShot(a: Shot, b: Shot, t: number): Shot {
-  const m = (x: number, y: number) => THREE.MathUtils.lerp(x, y, t);
-  return {
-    pos: [m(a.pos[0], b.pos[0]), m(a.pos[1], b.pos[1]), m(a.pos[2], b.pos[2])],
-    look: [m(a.look[0], b.look[0]), m(a.look[1], b.look[1]), m(a.look[2], b.look[2])],
-    focus: m(a.focus, b.focus),
-  };
-}
-
-function Rig({
-  progress,
-  focusRef,
-}: {
-  progress: React.RefObject<number>;
-  focusRef: React.RefObject<number>;
-}) {
+function Rig({ progress }: { progress: React.RefObject<number> }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(0, 0.1, 0));
   const pointer = useRef(new THREE.Vector2());
+  const targetPos = useRef(new THREE.Vector3());
+  const targetLook = useRef(new THREE.Vector3());
 
   useFrame((state, dt) => {
     const p = progress.current ?? 0;
-
-    // ease the raw scroll so the camera has weight instead of tracking 1:1
     const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
 
     const seg = eased * (SHOTS.length - 1);
     const i = Math.min(Math.floor(seg), SHOTS.length - 2);
-    const shot = lerpShot(SHOTS[i], SHOTS[i + 1], seg - i);
+    const t = seg - i;
+    const a = SHOTS[i];
+    const b = SHOTS[i + 1];
+    const L = THREE.MathUtils.lerp;
 
-    // a little parallax from the cursor, damped so it reads as a handheld drift
     pointer.current.lerp(state.pointer, Math.min(dt * 1.5, 1));
 
-    camera.position.lerp(
-      new THREE.Vector3(
-        shot.pos[0] + pointer.current.x * 0.35,
-        shot.pos[1] + pointer.current.y * 0.2,
-        shot.pos[2]
-      ),
-      Math.min(dt * 2.4, 1)
+    // reused vectors instead of allocating two new ones every frame
+    targetPos.current.set(
+      L(a.pos[0], b.pos[0], t) + pointer.current.x * 0.35,
+      L(a.pos[1], b.pos[1], t) + pointer.current.y * 0.2,
+      L(a.pos[2], b.pos[2], t)
+    );
+    targetLook.current.set(
+      L(a.look[0], b.look[0], t),
+      L(a.look[1], b.look[1], t),
+      L(a.look[2], b.look[2], t)
     );
 
-    look.current.lerp(new THREE.Vector3(...shot.look), Math.min(dt * 2.4, 1));
+    camera.position.lerp(targetPos.current, Math.min(dt * 2.4, 1));
+    look.current.lerp(targetLook.current, Math.min(dt * 2.4, 1));
     camera.lookAt(look.current);
-
-    focusRef.current = shot.focus;
   });
 
   return null;
@@ -218,19 +207,12 @@ function Rig({
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.22} />
-      <spotLight
-        position={[4, 6, 4]}
-        angle={0.34}
-        penumbra={1}
-        intensity={130}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-      />
+      <ambientLight intensity={0.25} />
+      <pointLight position={[4, 5, 4]} intensity={120} color="#fff2d8" />
       <pointLight position={[-4, 1.5, -3]} intensity={40} color="#ffcf8a" />
-      <pointLight position={[0, -2.5, 3]} intensity={20} color="#fff2d8" />
 
-      <Environment resolution={256}>
+      {/* frames={1}: the cubemap is rendered once at mount, not every frame */}
+      <Environment resolution={128} frames={1}>
         <Lightformer form="rect" intensity={6} position={[0, 4, 2]} scale={[8, 3, 1]} color="#fff6e6" />
         <Lightformer
           form="rect"
@@ -261,11 +243,13 @@ export default function CinematicStage({
   targetId: string;
   className?: string;
 }) {
+  const { ref, inView } = useInView<HTMLDivElement>("200px");
+
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       <Canvas
-        shadows
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
+        frameloop={inView ? "always" : "never"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0.5, 7.6], fov: 40, far: 100 }}
       >
@@ -277,50 +261,33 @@ export default function CinematicStage({
   );
 }
 
-const CAMERA_FAR = 100;
-
 function StageContents({ targetId }: { targetId: string }) {
   const progress = useStageProgress(targetId);
-  const focusRef = useRef(7.4);
-
-  // Focus is driven through DepthOfField's public prop rather than by reaching
-  // into the effect's internals. Committed only when it moves enough to matter,
-  // so this re-renders a handful of times per shot, not every frame.
-  const [focus, setFocus] = useState(7.4);
-  const committed = useRef(7.4);
-
-  useFrame(() => {
-    const f = focusRef.current ?? 7.4;
-    if (Math.abs(f - committed.current) > 0.1) {
-      committed.current = f;
-      setFocus(f);
-    }
-  });
 
   return (
     <>
       <Ring progress={progress} />
-      <ContactShadows position={[0, -1.6, 0]} opacity={0.6} scale={9} blur={2.8} far={4} />
+      {/* frames={1}: baked once rather than re-rendered every frame */}
+      <ContactShadows
+        position={[0, -1.6, 0]}
+        opacity={0.6}
+        scale={9}
+        blur={2.8}
+        far={4}
+        frames={1}
+      />
       <Lights />
-      <Rig progress={progress} focusRef={focusRef} />
+      <Rig progress={progress} />
 
-      {/* The grade. This is what makes it read as film rather than as a render. */}
+      {/*
+        Depth of field was removed. It was the most expensive pass in the chain,
+        and with the vignette and shutter doing most of the framing work it was
+        not carrying its cost. Bloom still blooms the speculars.
+      */}
       <EffectComposer multisampling={0}>
-        <DepthOfField
-          focusDistance={focus / CAMERA_FAR}
-          focalLength={0.05}
-          bokehScale={5}
-          height={480}
-        />
-        <Bloom intensity={0.85} luminanceThreshold={0.55} luminanceSmoothing={0.3} mipmapBlur />
-        <ChromaticAberration
-          offset={new THREE.Vector2(0.0006, 0.0009)}
-          blendFunction={BlendFunction.NORMAL}
-          radialModulation={false}
-          modulationOffset={0}
-        />
+        <Bloom intensity={0.8} luminanceThreshold={0.6} luminanceSmoothing={0.3} mipmapBlur />
         <Vignette eskil={false} offset={0.22} darkness={0.85} />
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.42} />
+        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.4} />
       </EffectComposer>
     </>
   );

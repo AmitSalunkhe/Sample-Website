@@ -30,6 +30,8 @@ const SHOTS = [
   },
 ];
 
+const SHOT_SRCS = SHOTS.map((s) => U(s.img, 1800));
+
 function useStageProgress() {
   const [p, setP] = useState(0);
   const ref = useRef(0);
@@ -79,14 +81,14 @@ export default function Hero() {
   return (
     <section id={STAGE_ID} className="relative h-[300vh]">
       <div className="sticky top-0 h-screen overflow-hidden bg-ink">
-        {/* the frame itself, remounted on each cut so the wipe replays */}
-        <div key={shot.img} className="absolute inset-0 animate-[fadeCut_1s_ease-out]">
-          <FilmFrame
-            src={U(shot.img, 2000)}
-            className="h-full w-full"
-            progressRef={shotProgress}
-          />
-        </div>
+        {/* Mounted once. Cuts crossfade between preloaded textures inside the
+            shader, so the WebGL context is created a single time. */}
+        <FilmFrame
+          sources={SHOT_SRCS}
+          index={idx}
+          className="absolute inset-0 h-full w-full"
+          progressRef={shotProgress}
+        />
 
         {/* letterbox */}
         <div
