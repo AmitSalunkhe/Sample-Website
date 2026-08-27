@@ -9,7 +9,7 @@ export type Story = {
   place: string;
 };
 
-/** Occasions we shoot — each written as the feeling, not the package. */
+/** Occasions we shoot, each written as the feeling, not the package. */
 export const STORIES: Story[] = [
   {
     id: "wedding",
@@ -35,7 +35,7 @@ export const STORIES: Story[] = [
   {
     id: "newborn",
     title: "Newborn",
-    line: "First breaths, first cries, first everything — held forever in light.",
+    line: "First breaths, first cries, first everything, held forever in light.",
     img: "1476703993599-0035a21b17a9",
     place: "Mumbai",
   },
@@ -94,7 +94,7 @@ export const PROCESS = [
   {
     n: "03",
     t: "Cinematic production",
-    d: "Grading, sound, music and pacing — the craft that turns a sequence of clips into something that actually moves you.",
+    d: "Grading, sound, music and pacing: the craft that turns a sequence of clips into something that actually moves you.",
   },
   {
     n: "04",

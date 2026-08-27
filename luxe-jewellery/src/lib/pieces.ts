@@ -44,7 +44,7 @@ export const PIECES: Piece[] = [
     stones: "Seven bezel-set diamonds",
     price: "₹1,42,000",
     note:
-      "Openwork filigree cut from a solid band — not cast. Nine hours of piercing work before a single stone is set.",
+      "Openwork filigree cut from a solid band, not cast. Nine hours of piercing work before a single stone is set.",
     scale: 0.95,
   },
   {
@@ -68,7 +68,7 @@ export const PIECES: Piece[] = [
     stones: "Graduated brilliant-cut diamonds",
     price: "₹2,90,000",
     note:
-      "Weighted to sit forward, not flat — so the drop stays in motion and the stones keep working under low light.",
+      "Weighted to sit forward, not flat, so the drop stays in motion and the stones keep working under low light.",
     scale: 0.9,
   },
   {
@@ -80,7 +80,7 @@ export const PIECES: Piece[] = [
     stones: "Pavé-set brilliants",
     price: "₹3,25,000",
     note:
-      "Our most photographed piece, and the one most often returned to us for resizing — because it is passed down.",
+      "Our most photographed piece, and the one most often returned to us for resizing, because it is passed down.",
     scale: 1.1,
   },
 ];

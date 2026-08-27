@@ -7,7 +7,7 @@ import { STORIES, U } from "@/lib/content";
 
 /**
  * Vertical scroll drives a horizontal reel of occasions.
- * The section pins, the film moves sideways — the way a strip runs past a gate.
+ * The section pins, the film moves sideways, the way a strip runs past a gate.
  */
 export default function Stories() {
   const wrap = useRef<HTMLDivElement>(null);

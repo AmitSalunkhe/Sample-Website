@@ -30,7 +30,7 @@ html, body {
 .font-display { font-family: var(--font-display); }
 .tracking-wide-xs { letter-spacing: 0.24em; }
 
-/* Warm film grain over the whole page — keeps flat photos from feeling digital */
+/* Warm film grain over the whole page, keeps flat photos from feeling digital */
 .grain::after {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 70; opacity: .05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -56,4 +56,14 @@ html, body {
 @keyframes wipeUp {
   from { clip-path: inset(100% 0 0 0); }
   to   { clip-path: inset(0 0 0 0); }
+}
+
+/* Cut transitions for the pinned film sequence. */
+@keyframes fadeCut {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

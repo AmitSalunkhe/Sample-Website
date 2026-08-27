@@ -104,7 +104,7 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
   useFrame((state, dt) => {
     if (!group.current) return;
     const p = progress.current ?? 0;
-    // a slow constant turn, accelerated slightly by scroll — the piece is always
+    // a slow constant turn, accelerated slightly by scroll, the piece is always
     // moving, so a still frame never looks like a static image
     group.current.rotation.y += dt * 0.3 + p * dt * 1.2;
     group.current.rotation.x = THREE.MathUtils.lerp(
@@ -150,17 +150,17 @@ function Ring({ progress }: { progress: React.RefObject<number> }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Camera choreography — three shots, cut on scroll                    */
+/* Camera choreography, three shots, cut on scroll                    */
 /* ------------------------------------------------------------------ */
 
 type Shot = { pos: [number, number, number]; look: [number, number, number]; focus: number };
 
 const SHOTS: Shot[] = [
-  // establishing wide — the piece sits small in a lot of darkness
+  // establishing wide, the piece sits small in a lot of darkness
   { pos: [0, 0.5, 7.6], look: [0, 0.1, 0], focus: 7.4 },
   // push in and orbit, catching the light across the band
   { pos: [2.1, 0.15, 3.9], look: [0, 0.15, 0], focus: 4.0 },
-  // macro on the head — prongs and stone fill the frame
+  // macro on the head, prongs and stone fill the frame
   { pos: [0.35, 1.05, 2.15], look: [0, 0.92, 0], focus: 2.0 },
 ];
 

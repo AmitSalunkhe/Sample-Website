@@ -1,27 +1,48 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useMotionValueEvent,
+  AnimatePresence,
+} from "framer-motion";
 import dynamic from "next/dynamic";
 import { PIECES } from "@/lib/pieces";
 
 const JewelCanvas = dynamic(() => import("./JewelCanvas"), { ssr: false });
 
 /**
- * A pinned stage. Scroll advances through the collection while the piece
- * stays centred and lit — the camera moves, the jewellery does not.
+ * A pinned stage. Scroll advances through the collection while the piece stays
+ * centred and lit, and the camera pushes in across each piece's own slice of the
+ * timeline. Cuts between pieces are treated as cuts: the outgoing frame dips and
+ * blurs, the incoming one settles, rather than a plain crossfade.
  */
 export default function Showcase() {
   const wrap = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
+  const [cutting, setCutting] = useState(false);
+
+  // 0 -> 1 within the currently framed piece, handed to the canvas camera
+  const pieceProgress = useRef(0);
+
   const { scrollYProgress } = useScroll({
     target: wrap,
     offset: ["start start", "end end"],
   });
 
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const next = Math.min(PIECES.length - 1, Math.floor(p * PIECES.length));
-    setI((cur) => (cur === next ? cur : next));
+    const scaled = p * PIECES.length;
+    const next = Math.min(PIECES.length - 1, Math.floor(scaled));
+    pieceProgress.current = Math.min(Math.max(scaled - next, 0), 1);
+
+    setI((cur) => {
+      if (cur === next) return cur;
+      // flash the shutter on the cut
+      setCutting(true);
+      window.setTimeout(() => setCutting(false), 260);
+      return next;
+    });
   });
 
   const piece = PIECES[i];
@@ -38,8 +59,32 @@ export default function Showcase() {
           }}
         />
 
-        <div className="relative mx-auto grid w-full max-w-[1400px] items-center gap-8 px-6 md:grid-cols-12 md:px-12">
-          {/* counter */}
+        {/* lens vignette, painted here because the canvas itself is transparent */}
+        <div
+          className="pointer-events-none absolute inset-0 z-20"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 50%, transparent 42%, rgba(10,9,8,.5) 82%, rgba(10,9,8,.9) 100%)",
+          }}
+        />
+
+        {/* letterbox */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-[5vh] bg-obsidian" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-[5vh] bg-obsidian" />
+
+        {/* the shutter: a fast dip to black on every cut */}
+        <div
+          className="pointer-events-none absolute inset-0 z-40 bg-obsidian"
+          style={{
+            opacity: cutting ? 0.55 : 0,
+            transition: cutting
+              ? "opacity .09s linear"
+              : "opacity .5s cubic-bezier(.16,1,.3,1)",
+          }}
+        />
+
+        <div className="relative z-10 mx-auto grid w-full max-w-[1400px] items-center gap-8 px-6 md:grid-cols-12 md:px-12">
+          {/* shot list */}
           <div className="order-2 hidden md:order-1 md:col-span-2 md:block">
             <div className="flex flex-col gap-3">
               {PIECES.map((p, idx) => (
@@ -48,8 +93,7 @@ export default function Showcase() {
                   onClick={() =>
                     window.scrollTo({
                       top:
-                        (wrap.current?.offsetTop ?? 0) +
-                        (idx + 0.5) * window.innerHeight,
+                        (wrap.current?.offsetTop ?? 0) + (idx + 0.5) * window.innerHeight,
                       behavior: "smooth",
                     })
                   }
@@ -57,12 +101,12 @@ export default function Showcase() {
                   aria-label={p.name}
                 >
                   <span
-                    className={`h-px transition-all duration-500 ${
+                    className={`h-px transition-all duration-700 ${
                       idx === i ? "w-10 bg-champagne" : "w-4 bg-ivory/25 group-hover:w-7"
                     }`}
                   />
                   <span
-                    className={`text-[10px] uppercase tracking-luxe transition-colors ${
+                    className={`text-[10px] uppercase tracking-luxe transition-colors duration-500 ${
                       idx === i ? "text-champagne" : "text-ivory/35"
                     }`}
                   >
@@ -79,13 +123,18 @@ export default function Showcase() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={piece.id}
-                  initial={{ opacity: 0, scale: 0.94, filter: "blur(10px)" }}
+                  initial={{ opacity: 0, scale: 1.08, filter: "blur(16px)" }}
                   animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 1.04, filter: "blur(10px)" }}
-                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                  exit={{ opacity: 0, scale: 0.97, filter: "blur(14px)" }}
+                  transition={{ duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0"
                 >
-                  <JewelCanvas src={piece.src} scale={piece.scale ?? 1} className="h-full w-full" />
+                  <JewelCanvas
+                    src={piece.src}
+                    scale={piece.scale ?? 1}
+                    className="h-full w-full"
+                    progressRef={pieceProgress}
+                  />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -96,15 +145,17 @@ export default function Showcase() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={piece.id}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, y: -22 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               >
                 <p className="text-[10px] uppercase tracking-luxe text-champagne/80">
                   {piece.collection}
                 </p>
-                <h3 className="font-display mt-3 text-5xl font-light md:text-6xl">{piece.name}</h3>
+                <h3 className="font-display mt-3 text-5xl font-light md:text-6xl">
+                  {piece.name}
+                </h3>
                 <div className="hairline my-7 max-w-[220px]" />
                 <p className="max-w-md text-[15px] font-light leading-relaxed text-ivory/65">
                   {piece.note}

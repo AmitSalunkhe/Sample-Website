@@ -18,11 +18,11 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: "Aurelia — Fine Jewellery, Made to Outlive Us",
+  title: "Aurelia Fine Jewellery | Made to Outlive Us",
   description:
     "Hand-finished gold and certified diamonds. Every Aurelia piece is cut, set and polished by a single artisan, then signed.",
   openGraph: {
-    title: "Aurelia — Fine Jewellery",
+    title: "Aurelia Fine Jewellery",
     description: "Hand-finished gold and certified diamonds, signed by the artisan who made them.",
     type: "website",
   },

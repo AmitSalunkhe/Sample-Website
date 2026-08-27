@@ -18,11 +18,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Lumière — Photography & Cinematic Family Films",
+  title: "Lumière | Photography & Cinematic Family Films",
   description:
     "A photograph remembers the moment. A film remembers how it felt. Weddings, first birthdays, festivals and the ordinary days worth keeping.",
   openGraph: {
-    title: "Lumière — Photography & Cinematic Family Films",
+    title: "Lumière | Photography & Cinematic Family Films",
     description:
       "Weddings, first birthdays, festivals and the ordinary days worth keeping. Photographed and filmed by people, not templates.",
     type: "website",

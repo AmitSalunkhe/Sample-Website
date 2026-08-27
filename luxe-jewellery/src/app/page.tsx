@@ -67,7 +67,7 @@ export default function Home() {
               <p className="mt-10 max-w-xl text-[15px] font-light leading-relaxed text-ivory/60">
                 We are a small house. We make roughly four hundred pieces a year,
                 which is fewer than a factory makes before lunch. That constraint
-                is the entire point &mdash; it is what lets one person stay with a
+                is the entire point, and it is what lets one person stay with a
                 piece from rough stone to final polish, and put their name inside it.
               </p>
             </Reveal>

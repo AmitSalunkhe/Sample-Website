@@ -101,7 +101,7 @@ export function Reveal({
   );
 }
 
-/** Splits a line into words that rise independently — used on display headings. */
+/** Splits a line into words that rise independently, used on display headings. */
 export function RevealWords({
   text,
   className = "",

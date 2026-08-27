@@ -86,7 +86,7 @@ export default function Hero() {
       <div className="sticky top-0 h-screen overflow-hidden bg-obsidian">
         <CinematicStage targetId={STAGE_ID} className="absolute inset-0" />
 
-        {/* letterbox — irises open on load, then frames the whole sequence */}
+        {/* letterbox, irises open on load, then frames the whole sequence */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-obsidian"
           style={{ height: barH, transition: "height 1.6s cubic-bezier(.16,1,.3,1)" }}
@@ -105,7 +105,7 @@ export default function Hero() {
           }}
         />
 
-        {/* ── Shot 1 — establishing ─────────────────────────── */}
+        {/* ── Shot 1: establishing ─────────────────────────── */}
         <div className="relative z-30 h-full">
           <Shot from={0} to={0.28} p={p}>
             <p
@@ -143,7 +143,7 @@ export default function Hero() {
             </h1>
           </Shot>
 
-          {/* ── Shot 2 — the push in ────────────────────────── */}
+          {/* ── Shot 2: the push in ────────────────────────── */}
           <Shot from={0.38} to={0.62} p={p}>
             <p className="text-[10px] uppercase tracking-luxe text-champagne/85">
               The Atelier
@@ -155,7 +155,7 @@ export default function Hero() {
             </h2>
           </Shot>
 
-          {/* ── Shot 3 — the macro ─────────────────────────── */}
+          {/* ── Shot 3: the macro ─────────────────────────── */}
           <Shot from={0.72} to={1} p={p}>
             <p className="text-[10px] uppercase tracking-luxe text-champagne/85">
               1.10ct, cut in-house

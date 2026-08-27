@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /* ------------------------------------------------------------------ */
-/* Scroll progress — a hairline that fills as you move down the page   */
+/* Scroll progress, a hairline that fills as you move down the page   */
 /* ------------------------------------------------------------------ */
 
 export function ScrollProgress() {
@@ -33,7 +33,7 @@ export function ScrollProgress() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Marquee — continuous horizontal drift, reverses direction on hover  */
+/* Marquee, continuous horizontal drift, reverses direction on hover  */
 /* ------------------------------------------------------------------ */
 
 export function Marquee({
@@ -72,7 +72,7 @@ export function Marquee({
 }
 
 /* ------------------------------------------------------------------ */
-/* Parallax — moves a layer against the scroll, at a chosen rate       */
+/* Parallax, moves a layer against the scroll, at a chosen rate       */
 /* ------------------------------------------------------------------ */
 
 export function Parallax({
@@ -131,7 +131,7 @@ export function Parallax({
 }
 
 /* ------------------------------------------------------------------ */
-/* TiltCard — the card leans toward the cursor in 3D                   */
+/* TiltCard, the card leans toward the cursor in 3D                   */
 /* ------------------------------------------------------------------ */
 
 export function TiltCard({
@@ -174,7 +174,7 @@ export function TiltCard({
 }
 
 /* ------------------------------------------------------------------ */
-/* Counter — counts up once it scrolls into view                       */
+/* Counter, counts up once it scrolls into view                       */
 /* ------------------------------------------------------------------ */
 
 export function Counter({

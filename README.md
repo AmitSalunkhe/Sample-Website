@@ -4,8 +4,8 @@ Two production-grade reference sites built as client-facing demos.
 
 | | Project | Stack |
 |---|---|---|
-| 💍 | [`luxe-jewellery/`](./luxe-jewellery) — **Aurelia**, fine jewellery | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
-| 📷 | [`lumiere-studio/`](./lumiere-studio) — **Lumière**, photography & family films | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
+| 💍 | [`luxe-jewellery/`](./luxe-jewellery), **Aurelia**, fine jewellery | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
+| 📷 | [`lumiere-studio/`](./lumiere-studio), **Lumière**, photography & family films | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
 
 ## Running either one
 
@@ -17,7 +17,7 @@ npm run dev
 
 ---
 
-## Aurelia — fine jewellery
+## Aurelia, fine jewellery
 
 A dark, gold-on-obsidian luxury site built around real product photography.
 
@@ -29,12 +29,12 @@ the sparkle tracks the actual stones. It also applies chromatic refraction, a
 travelling polish band, and pointer-driven tilt.
 
 **`src/components/Showcase.tsx`** pins the stage and scroll-scrubs through the
-collection — the camera moves, the piece stays lit and centred.
+collection, the camera moves, the piece stays lit and centred.
 
 Product images are WebP at 900px (~411 KB total, down from ~13 MB of PNG).
 The original PNGs are kept alongside them in `public/jewels/`.
 
-## Lumière — photography & cinematic family films
+## Lumière, photography and cinematic family films
 
 A warm, bone-and-clay editorial site in a memory/legacy register.
 
@@ -52,12 +52,12 @@ like a strip passing a gate.
 
 These are demo builds. Three things need real assets swapped in:
 
-1. **`luxe-jewellery` — the "Trinité" piece uses a Cartier product photograph**
+1. **`luxe-jewellery`, the "Trinité" piece uses a Cartier product photograph**
    (the Cartier signature is visible on the pendant), presented as Aurelia's own
    work. Replace with the client's own product photography before any public use.
-2. **`luxe-jewellery` — `ring-1` is only 400×400** and looks soft at hero size.
+2. **`luxe-jewellery`, `ring-1` is only 400×400** and looks soft at hero size.
    Needs a re-shoot.
-3. **`lumiere-studio` — all photography is Unsplash stock.** Replace with the
+3. **`lumiere-studio`, all photography is Unsplash stock.** Replace with the
    studio's actual portfolio.
 
 Neither site has real 3D product video or Spline scenes. The WebGL treatments

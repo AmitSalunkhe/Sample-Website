@@ -71,12 +71,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Marquee band — continuous drift, pauses when you hover it */}
+      {/* Marquee band, continuous drift, pauses when you hover it */}
       <section className="border-y border-ink/10 bg-bone-deep py-10 md:py-14">
         <Marquee items={MARQUEE} speed={46} className="text-ink/80" />
       </section>
 
-      {/* Counters — numbers count up as they enter the frame */}
+      {/* Counters, numbers count up as they enter the frame */}
       <section className="mx-auto max-w-[1440px] px-6 py-24 md:px-12 md:py-32">
         <div className="grid gap-10 sm:grid-cols-3">
           {[
@@ -299,7 +299,7 @@ export default function Home() {
                         p.featured ? "text-bone/75" : "text-ink-soft/75"
                       }`}
                     >
-                      <span className={p.featured ? "text-clay-light" : "text-clay"}>&mdash;</span>
+                      <span className={p.featured ? "text-clay-light" : "text-clay"}>·</span>
                       {inc}
                     </li>
                   ))}
