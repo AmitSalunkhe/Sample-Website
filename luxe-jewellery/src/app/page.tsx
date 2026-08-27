@@ -2,6 +2,9 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
 import { Reveal, RevealWords } from "@/components/Reveal";
+import Link from "next/link";
+import EnquiryForm from "@/components/EnquiryForm";
+import { ARTICLES } from "@/lib/journal";
 
 const CRAFT = [
   {
@@ -26,10 +29,12 @@ const CRAFT = [
   },
 ];
 
-const JOURNAL = [
-  { k: "Craft", t: "Why we still cut our own rough", d: "Six minutes" },
-  { k: "Care", t: "How to store gold so it never needs re-polishing", d: "Four minutes" },
-  { k: "Heritage", t: "The Jaipur bench, fifty years on", d: "Nine minutes" },
+const FOOTER_LINKS = [
+  { label: "Collections", href: "#collections" },
+  { label: "The Atelier", href: "#atelier" },
+  { label: "Provenance", href: "#provenance" },
+  { label: "Journal", href: "#journal" },
+  { label: "Contact", href: "#appointment" },
 ];
 
 const PROOF: [string, string][] = [
@@ -165,24 +170,24 @@ export default function Home() {
             <p className="text-[11px] uppercase tracking-luxe text-champagne/80">Journal</p>
           </Reveal>
           <div className="mt-14 divide-y divide-champagne/10 border-y border-champagne/10">
-            {JOURNAL.map((j, i) => (
-              <Reveal key={j.t} delay={i * 0.1}>
-                <a
-                  href="#"
+            {ARTICLES.map((j, i) => (
+              <Reveal key={j.slug} delay={i * 0.1}>
+                <Link
+                  href={`/journal/${j.slug}`}
                   className="group flex flex-col gap-3 py-9 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:gap-10">
                     <span className="w-24 shrink-0 text-[11px] uppercase tracking-luxe text-champagne/70">
-                      {j.k}
+                      {j.kicker}
                     </span>
                     <h3 className="font-display text-2xl font-light transition-colors duration-300 group-hover:text-champagne md:text-3xl">
-                      {j.t}
+                      {j.title}
                     </h3>
                   </div>
                   <span className="text-[11px] uppercase tracking-[0.16em] text-ivory/55">
-                    {j.d}
+                    {j.readingTime}
                   </span>
-                </a>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -218,20 +223,19 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={0.45}>
-            <div className="mt-12 flex flex-col items-center justify-center gap-5 sm:flex-row">
-              <a
-                href="mailto:atelier@aurelia.example"
-                className="bg-champagne px-12 py-5 text-[11px] uppercase tracking-luxe text-obsidian transition-opacity hover:opacity-85"
-              >
-                Request an appointment
-              </a>
-              <a
-                href="tel:+910000000000"
-                className="border border-champagne/30 px-12 py-5 text-[11px] uppercase tracking-luxe text-champagne transition-colors hover:bg-champagne/10"
-              >
-                Speak to the atelier
-              </a>
+            <div className="mx-auto mt-14 max-w-xl">
+              <EnquiryForm />
             </div>
+            <p className="mx-auto mt-8 max-w-md text-[13px] font-light text-ivory/60">
+              Or call the bench directly on{" "}
+              <a
+                href="tel:+919999000000"
+                className="border-b border-champagne/40 text-champagne hover:text-ivory"
+              >
+                +91 99990 00000
+              </a>
+              , Tuesday to Saturday.
+            </p>
           </Reveal>
         </div>
       </section>
@@ -249,10 +253,10 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-wrap gap-x-10 gap-y-3">
-              {["Collections", "The Atelier", "Provenance", "Care", "Contact"].map((l) => (
+              {FOOTER_LINKS.map(({ label: l, href }) => (
                 <a
                   key={l}
-                  href="#"
+                  href={href}
                   className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-luxe text-ivory/60 transition-colors hover:text-champagne"
                 >
                   {l}

@@ -10,7 +10,16 @@ import {
   TiltCard,
   Counter,
 } from "@/components/MotionBits";
+import EnquiryForm from "@/components/EnquiryForm";
 import { GALLERY, PACKAGES, PROCESS, VOICES, U } from "@/lib/content";
+
+const FOOTER_LINKS = [
+  { label: "Stories", href: "#stories" },
+  { label: "How it works", href: "#process" },
+  { label: "Gallery", href: "#gallery" },
+  { label: "Investment", href: "#packages" },
+  { label: "Contact", href: "#start" },
+];
 
 const MARQUEE = [
   "Weddings",
@@ -351,20 +360,19 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={0.42}>
-            <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <a
-                href="mailto:hello@lumiere.example"
-                className="rounded-full bg-bone px-11 py-5 text-[11px] uppercase tracking-wide-xs text-ink transition-colors hover:bg-clay hover:text-bone"
-              >
-                Begin the journey
-              </a>
-              <a
-                href="tel:+910000000000"
-                className="rounded-full border border-bone/30 px-11 py-5 text-[11px] uppercase tracking-wide-xs text-bone transition-colors hover:bg-bone/10"
-              >
-                Call the studio
-              </a>
+            <div className="mx-auto mt-14 max-w-xl rounded-sm bg-bone p-8 text-ink md:p-10">
+              <EnquiryForm />
             </div>
+            <p className="mx-auto mt-8 max-w-md text-[13px] font-light text-bone/70">
+              Or call the studio on{" "}
+              <a
+                href="tel:+919999000000"
+                className="border-b border-clay-light/60 text-clay-light hover:text-bone"
+              >
+                +91 99990 00000
+              </a>
+              .
+            </p>
           </Reveal>
         </div>
       </section>
@@ -383,10 +391,10 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-wrap gap-x-9 gap-y-3">
-              {["Stories", "How it works", "Gallery", "FAQs", "Contact", "Privacy"].map((l) => (
+              {FOOTER_LINKS.map(({ label: l, href }) => (
                 <a
                   key={l}
-                  href="#"
+                  href={href}
                   className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-wide-xs text-bone/65 transition-colors hover:text-clay-light"
                 >
                   {l}
