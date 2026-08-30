@@ -37,6 +37,25 @@ IFrame API behind our own controls; the site stores no audio and the API script
 is only fetched when someone presses play. Track data comes from
 `../swardhara/src/lib/content.ts`.
 
+## Installable
+
+`manifest.webmanifest` plus `sw.js`. Chrome will not offer to install a site
+without a service worker that handles fetch, so the worker is what makes the
+Install button possible at all; the button itself only appears once the browser
+fires `beforeinstallprompt`, and hides again on `appinstalled`.
+
+The worker precaches the shell only: the page, the manifest and two icons. The
+artwork is left out on purpose. There are six variants and a device uses exactly
+one, picked by media query and density, so precaching the set would pull about a
+megabyte of paintings nobody asked for. The fetch handler caches whichever one
+the page actually requests instead. It never touches cross-origin requests, so
+YouTube, Google Fonts and the Tailwind CDN are left to the network.
+
+Icons are cropped from the portrait painting, tight on the tanpura and the man
+holding it, which is the part of the scene that still reads at 48px in a
+launcher. The maskable icon sits inside the 60% safe zone on the artwork's clay,
+since Android crops up to 20% off every edge.
+
 ## Contrast
 
 Every zone of the artwork was sampled before any UI was placed. The bottom is

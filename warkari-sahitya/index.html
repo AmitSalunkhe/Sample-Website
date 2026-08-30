@@ -7,6 +7,13 @@
 <meta name="description" content="अभंग, कीर्तन, भजन आणि स्तोत्रं. गावच्या भजन मंडळाची मैफल, चोवीस तास." />
 <meta name="theme-color" content="#8a5f3a" />
 
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="img/icon-192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="भजन मंडळ" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -504,12 +511,30 @@ document.querySelectorAll('[data-close-card]').forEach(function (b) {
   b.addEventListener('click', function () { $(b.dataset.closeCard).remove(); });
 });
 
+/* Chrome only offers an install prompt to a page with a service worker that
+   handles fetch, so registration is what makes the button below possible at
+   all. Deliberately after load: the worker warms a cache with the artwork, and
+   that should never compete with the first paint. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {
+      /* No worker means no install prompt and no offline copy, which is a
+         smaller site rather than a broken one. Nothing to tell the visitor. */
+    });
+  });
+}
+
 let installEvent = null;
 window.addEventListener('beforeinstallprompt', function (e) {
   e.preventDefault();
   installEvent = e;
   $('btn-install').hidden = false;
 });
+window.addEventListener('appinstalled', function () {
+  installEvent = null;
+  $('btn-install').hidden = true;
+});
+
 $('btn-install').addEventListener('click', function () {
   if (!installEvent) return;
   installEvent.prompt();

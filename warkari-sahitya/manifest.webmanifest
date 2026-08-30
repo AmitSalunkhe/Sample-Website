@@ -1,0 +1,19 @@
+{
+  "name": "आपले भजन मंडळ",
+  "short_name": "भजन मंडळ",
+  "description": "अभंग, कीर्तन, भजन आणि स्तोत्रं. गावच्या भजन मंडळाची मैफल, चोवीस तास.",
+  "lang": "mr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#af7b50",
+  "theme_color": "#8a5f3a",
+  "categories": ["music", "entertainment", "lifestyle"],
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
