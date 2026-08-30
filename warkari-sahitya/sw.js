@@ -10,7 +10,7 @@
  * the network, and this worker deliberately never touches those requests.
  */
 
-const VERSION = 'bhajan-mandal-v2';
+const VERSION = 'bhajan-mandal-v3';
 
 /* The shell only: the page, its manifest and the launcher icons.
  *
@@ -24,6 +24,7 @@ const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './songs.json',
   './img/icon-192.png',
   './img/icon-512.png',
 ];
@@ -57,6 +58,22 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  /* The song list is rewritten daily by a scheduled job, so it must never be
+     served stale from cache while the network is available. Same rule as the
+     page: network first, cache as the offline answer. */
+  if (url.pathname.endsWith('/songs.json')) {
+    event.respondWith(
+      fetch(req)
+        .then(function (res) {
+          const copy = res.clone();
+          caches.open(VERSION).then(function (c) { c.put(req, copy); });
+          return res;
+        })
+        .catch(function () { return caches.match(req); })
+    );
+    return;
+  }
 
   /* The page itself: network first, so a redeploy is picked up straight away,
      with the cached copy as the offline answer. */

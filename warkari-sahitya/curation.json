@@ -1,0 +1,170 @@
+{
+ "_note": "Hand-written metadata, keyed by YouTube video id. The sync script uses whatever is here and falls back to the video's own title for anything it has never seen. Nothing here is ever overwritten.",
+ "exclude": [
+  "0i0U4wEaPzQ",
+  "ZDRpPGWj1BM",
+  "RktyePdY1Qw",
+  "le85qVSzUeI",
+  "ch5QpX4jw-Y",
+  "PYc9t-UK8Qw"
+ ],
+ "_exclude_note": "Harmonium notation lessons: they teach a tune rather than perform one.",
+ "overrides": {
+  "P5aaMcwNtvM": {
+   "t": "रूप पाहता लोचनी",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "raga": "पहाडी",
+   "cat": "abhang"
+  },
+  "CPEerVipX2c": {
+   "t": "रूप पाहता लोचनी",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "raga": "किरवाणी आणि दरबारी कानडा",
+   "cat": "abhang"
+  },
+  "HeoEzp7OcDo": {
+   "t": "रूप पाहता लोचनी",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "pxqzfwWFuP8": {
+   "t": "रूप पाहता लोचनी",
+   "by": "सुंदर मेस्त्री",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "5XnYFWhoNO8": {
+   "t": "रूप पाहता लोचनी",
+   "by": "उज्वल गजभार",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "mhUELq6SOJc": {
+   "t": "रूप पाहता लोचनी",
+   "by": "ह.भ.प. पुरुषोत्तम महाराज पाटील",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "pCEUzCaNNyw": {
+   "t": "रूप पाहता लोचनी",
+   "by": "रामदास पाटील नेरुळकर",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "eZFu49rGwCY": {
+   "t": "रूप पाहता लोचनी",
+   "by": "कल्पेश जाधव",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "8x3OZOxq1yU": {
+   "t": "सुंदर ते ध्यान",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "raga": "मधुवंती",
+   "cat": "abhang"
+  },
+  "NyebcYdEuQs": {
+   "t": "सुंदर ते ध्यान उभे विटेवरी",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "tp5sIkBMywI": {
+   "t": "सुंदर ते ध्यान",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "btG9zvfrTew": {
+   "t": "सुंदर ते ध्यान उभे विटेवरी",
+   "by": "कृष्णा देशमुख",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "2bkPQSXgcnw": {
+   "t": "नित्य पाठाचे बारा अभंग",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "YP9ihYZ9LeA": {
+   "t": "संपत्ती सोहळा नावडे मनाला",
+   "by": "Naad Vithalacha",
+   "poet": "संत तुकाराम",
+   "cat": "abhang"
+  },
+  "PEBmKTMGAiQ": {
+   "t": "धन्य धन्य जन्म ज्याचा",
+   "by": "बुवा सुशील गोठणकर",
+   "cat": "abhang"
+  },
+  "veEhZncx5hM": {
+   "t": "पूर्व पुण्य असे जयाचे पदरी",
+   "by": "पूजा भुरुक, वैष्णवी मावळे",
+   "cat": "abhang"
+  },
+  "fqA8u17jIcU": {
+   "t": "देह विठ्ठल",
+   "by": "अवधूत गांधी",
+   "cat": "abhang"
+  },
+  "UXSgXNAJQWo": {
+   "t": "कान्होबा तुझी घोंगडी",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "raga": "शिवरंजनी",
+   "cat": "kirtan"
+  },
+  "-XPnZLNd1-Q": {
+   "t": "कृष्ण माझी माता",
+   "by": "बाळकृष्ण दादा वसंतगडकर",
+   "raga": "पारंपरिक चाल",
+   "cat": "kirtan"
+  },
+  "a-vjUwsREvA": {
+   "t": "जय जय राम कृष्ण हरी",
+   "by": "HARMONIUM MELODY Adhyatma",
+   "cat": "bhajan"
+  },
+  "tLdEc5VaxCs": {
+   "t": "जय जय राम कृष्ण हरी",
+   "by": "HARMONIUM MELODY Adhyatma",
+   "raga": "सारंग",
+   "cat": "bhajan"
+  },
+  "XAv80aKEyv8": {
+   "t": "पंचपदी, भाग २०",
+   "by": "अरुण कोठावळे",
+   "raga": "सांप्रदायिक चाली",
+   "cat": "panchpadi"
+  },
+  "qpJ8dFMgtGs": {
+   "t": "गणपती अथर्वशीर्ष",
+   "by": "सूर्यगायत्री",
+   "cat": "stotra"
+  },
+  "zG2qzHSfYi0": {
+   "t": "महालक्ष्मी अष्टकम",
+   "by": "Bhakti Mantras India",
+   "cat": "stotra"
+  },
+  "CK1FdwSGR48": {
+   "t": "जगत जननी तू अंबामाता",
+   "by": "तेजस मेस्त्री",
+   "cat": "stotra"
+  },
+  "m8QDTCjDrpM": {
+   "t": "देवी स्तोत्र आणि आरती संग्रह",
+   "by": "Bhakti Mantras India",
+   "cat": "stotra"
+  },
+  "q3IYYAIxtMY": {
+   "t": "स्मरण लता",
+   "by": "अंजली आणि नंदिनी गायकवाड",
+   "cat": "maifil"
+  }
+ }
+}

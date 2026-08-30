@@ -56,6 +56,29 @@ holding it, which is the part of the scene that still reads at 48px in a
 launcher. The maskable icon sits inside the 60% safe zone on the artwork's clay,
 since Android crops up to 20% off every edge.
 
+## The songs sync themselves
+
+`songs.json` holds the list and the page fetches it at boot. A GitHub Action
+rewrites that file once a day from the YouTube playlists, so a song added there
+reaches the site without anyone editing code.
+
+    node scripts/sync-playlists.mjs --dry        # show what would change
+    node scripts/sync-playlists.mjs --self-test  # no API key needed
+
+The key lives in the repository secret `YOUTUBE_API_KEY` and never reaches a
+browser. The Action also has a Run button for when a song should not wait until
+morning.
+
+**YouTube owns which videos exist; `curation.json` owns what they are called.**
+A video seen for the first time gets a tidied version of its own title and a
+guessed category, and appears straight away. Anything written into
+`curation.json` wins from then on and is never overwritten, so the 27 hand-named
+tracks stay hand-named. To rename a new one, add its id there.
+
+`curation.json` also carries an `exclude` list, currently the six harmonium
+notation videos: they teach a tune rather than perform one. The script drops
+private, deleted and non-embeddable videos on its own.
+
 ## It remembers where you were
 
 A forty minute kirtan is not something you finish in one sitting, so the track

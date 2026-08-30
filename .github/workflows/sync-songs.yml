@@ -1,0 +1,45 @@
+name: Sync bhajan playlists
+
+# Once a day, plus a button in the Actions tab for when a song has just been
+# added and should not wait until tomorrow.
+on:
+  schedule:
+    - cron: "30 1 * * *"   # 07:00 IST
+  workflow_dispatch:
+
+# The job commits songs.json back to the branch, so it needs write access.
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-songs
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Pull the playlists
+        working-directory: warkari-sahitya
+        env:
+          # Set this under Settings, Secrets and variables, Actions.
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: node scripts/sync-playlists.mjs
+
+      - name: Commit if anything changed
+        run: |
+          if git diff --quiet -- warkari-sahitya/songs.json; then
+            echo "No change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add warkari-sahitya/songs.json
+          git commit -m "Sync songs from the YouTube playlists"
+          git push
