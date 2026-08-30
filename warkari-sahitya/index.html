@@ -302,7 +302,63 @@ setInterval(tickClock, 20000);
    when someone actually presses play.
    ------------------------------------------------------------ */
 let yt = null, apiPromise = null;
-let queue = [], at = -1, playing = false, poll = null;
+let queue = [], at = -1, playing = false, poll = null, saver = null;
+
+/* Where the listener had got to, so a refresh does not send them back to the
+   start of a forty minute kirtan. Held as {id, pos, q, t}: the track, the
+   seconds into it, the queue it was playing from, and when it was written.
+   Everything is wrapped because localStorage throws outright in a private
+   window or with site data blocked, and a site that cannot remember is fine
+   while a site that crashes is not. */
+const SAVE_KEY = 'bhajan-mandal:last';
+
+/* A track picked up again tomorrow is welcome; one from last month is just
+   confusing, so the note is dropped after a fortnight. */
+const SAVE_TTL = 14 * 24 * 60 * 60 * 1000;
+
+function saveState() {
+  if (at < 0 || !queue[at]) return;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      id: queue[at].id,
+      pos: Math.floor(lastPos),
+      q: queue.map(function (s) { return s.id; }),
+      t: Date.now(),
+    }));
+  } catch (e) { /* storage unavailable; playback still works */ }
+}
+
+function loadState() {
+  let raw;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch (e) { return null; }
+  if (!raw) return null;
+
+  let v;
+  try { v = JSON.parse(raw); } catch (e) { return null; }
+  if (!v || !v.id || Date.now() - (v.t || 0) > SAVE_TTL) return null;
+
+  const byId = function (id) {
+    return SONGS.filter(function (s) { return s.id === id; })[0];
+  };
+  const song = byId(v.id);
+  if (!song) return null;
+
+  const list = (v.q || []).map(byId).filter(Boolean);
+
+  /* Within half a minute of the end it is finished, not paused. Resuming there
+     would play a few seconds of silence and jump on. */
+  const pos = (v.pos > 0 && v.pos < song.sec - 30) ? v.pos : 0;
+  return { song: song, list: list.length ? list : SONGS, pos: pos };
+}
+
+/* The last position the player reported. Kept separately because getCurrentTime
+   is gone the moment the iframe is torn down, and that is exactly when the page
+   is unloading and the position most needs writing. */
+let lastPos = 0;
+
+/* Set when a saved position is waiting to be resumed but nothing has been
+   pressed yet, since a browser will not start audio without a gesture. */
+let pending = null;
 
 function loadApi() {
   if (apiPromise) return apiPromise;
@@ -320,23 +376,27 @@ function loadApi() {
   return apiPromise;
 }
 
-function play(song, list) {
+function play(song, list, startAt) {
+  const from = Math.max(0, Math.floor(startAt || 0));
+  pending = null;
   queue = (list && list.length) ? list : [song];
   at = queue.indexOf(song);
+  lastPos = from;
 
   $('p-title').textContent = song.t;
   $('p-sub').textContent = credit(song);
   $('p-dur').textContent = fmt(song.sec);
   $('p-seek').max = song.sec;
-  $('p-seek').value = 0;
-  $('p-now').textContent = '0:00';
+  $('p-seek').value = from;
+  $('p-now').textContent = fmt(from);
   render();
+  saveState();
 
   loadApi().then(function () {
-    if (yt) { yt.loadVideoById(song.id); return; }
+    if (yt) { yt.loadVideoById({ videoId: song.id, startSeconds: from }); return; }
     yt = new YT.Player('yt-host', {
       videoId: song.id,
-      playerVars: { autoplay: 1, playsinline: 1 },
+      playerVars: { autoplay: 1, playsinline: 1, start: from },
       events: {
         onReady: function (e) { e.target.playVideo(); },
         onStateChange: function (e) {
@@ -363,7 +423,15 @@ function setPlaying(on) {
   $('ic-pause').classList.toggle('hidden', !on);
   $('p-toggle').setAttribute('aria-label', on ? 'थांबव' : 'वाजव');
   clearInterval(poll);
-  if (on) poll = setInterval(paint, 500);
+  clearInterval(saver);
+  if (on) {
+    poll = setInterval(paint, 500);
+    /* Five seconds, not every paint: this is a disk write, and losing at most
+       five seconds of a kirtan is not worth writing twice a second. */
+    saver = setInterval(saveState, 5000);
+  } else {
+    saveState();
+  }
   render();
 }
 
@@ -375,6 +443,7 @@ function paint() {
      leaves the scrubber scaled to the previous track. */
   const dur = yt.getDuration();
   if (dur > 0) { $('p-seek').max = Math.floor(dur); $('p-dur').textContent = fmt(dur); }
+  lastPos = pos;
   $('p-seek').value = Math.floor(pos);
   $('p-now').textContent = fmt(pos);
 }
@@ -386,6 +455,9 @@ function step(by) {
 }
 
 $('p-toggle').addEventListener('click', function () {
+  /* First press after a reload: this is the gesture the browser was waiting
+     for, so the saved position can finally be resumed. */
+  if (!yt && pending) { play(pending.song, pending.list, pending.pos); return; }
   if (!yt) { play(SONGS[0], SONGS); return; }
   playing ? yt.pauseVideo() : yt.playVideo();
 });
@@ -393,9 +465,44 @@ $('p-next').addEventListener('click', function () { step(1); });
 $('p-prev').addEventListener('click', function () { step(-1); });
 $('p-seek').addEventListener('input', function (e) {
   const v = Number(e.target.value);
+  lastPos = v;
   $('p-now').textContent = fmt(v);
   if (yt && yt.seekTo) yt.seekTo(v, true);
+  else if (pending) pending.pos = v;
+  saveState();
 });
+
+/* Last chance to write. pagehide fires where unload is unreliable, and
+   visibilitychange covers a phone being switched away from, which on iOS is
+   often the only event that arrives before the tab is frozen. */
+window.addEventListener('pagehide', saveState);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') saveState();
+});
+
+/* Restore on load.
+ *
+ * The bar is filled in but nothing plays: browsers refuse audio without a
+ * gesture, and a page that starts blaring on open would deserve it. Pressing
+ * play picks up from the saved second. */
+(function restore() {
+  const saved = loadState();
+  if (!saved) return;
+
+  pending = saved;
+  queue = saved.list;
+  at = queue.indexOf(saved.song);
+  lastPos = saved.pos;
+
+  $('p-title').textContent = saved.song.t;
+  $('p-sub').textContent = saved.pos > 0
+    ? credit(saved.song) + ' · ' + fmt(saved.pos) + ' पासून'
+    : credit(saved.song);
+  $('p-dur').textContent = fmt(saved.song.sec);
+  $('p-seek').max = saved.song.sec;
+  $('p-seek').value = saved.pos;
+  $('p-now').textContent = fmt(saved.pos);
+})();
 
 /* ============================================================
    Sheet

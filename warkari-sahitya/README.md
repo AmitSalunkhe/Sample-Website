@@ -56,6 +56,25 @@ holding it, which is the part of the scene that still reads at 48px in a
 launcher. The maskable icon sits inside the 60% safe zone on the artwork's clay,
 since Android crops up to 20% off every edge.
 
+## It remembers where you were
+
+A forty minute kirtan is not something you finish in one sitting, so the track
+and the second you reached are kept in `localStorage` and restored on the next
+visit.
+
+It does not resume playing by itself. Browsers refuse audio without a gesture,
+and a page that starts sounding the moment it opens has earned the reaction it
+gets. The bar comes back filled in, reading "3:20 पासून", and the first press of
+play picks up from there via the player's own `start` parameter.
+
+Written every five seconds while playing, on pause, on any seek, and on
+`pagehide` and `visibilitychange` — the last two because a phone being switched
+away from often gives no other warning. Every read is validated: corrupt JSON, a
+video no longer in the collection, a note older than a fortnight, or a position
+within thirty seconds of the end all fall back to a clean start rather than
+throwing. Storage access is wrapped throughout, since it throws outright in a
+private window.
+
 ## Contrast
 
 Every zone of the artwork was sampled before any UI was placed. The bottom is

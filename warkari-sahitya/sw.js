@@ -10,7 +10,7 @@
  * the network, and this worker deliberately never touches those requests.
  */
 
-const VERSION = 'bhajan-mandal-v1';
+const VERSION = 'bhajan-mandal-v2';
 
 /* The shell only: the page, its manifest and the launcher icons.
  *
