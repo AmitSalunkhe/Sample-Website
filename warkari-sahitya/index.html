@@ -50,12 +50,15 @@
   }
 
   /*
-   * One file per screen size, in the best format the browser takes.
+   * Two paintings, one scene.
    *
-   * image-set picks AVIF where it is supported and falls back to WebP, and the
-   * media queries pick the width. The breakpoints allow for portrait scaling
-   * the art to 188%, so a 420px phone asks for 790px of image and is given the
-   * 800px file rather than the 1672px one: 75 KB instead of 239 KB.
+   * The landscape file is 16:9 and the portrait file is 0.463, which is within
+   * a hair of a modern phone (an iPhone 14 is 0.462). So a phone gets its own
+   * cover-cropped artwork rather than a letterboxed band with filler under it,
+   * and the composition holds in both shapes.
+   *
+   * image-set picks AVIF where the browser takes it and the right density for
+   * the screen; the media queries pick the viewport size.
    */
   .art { background-image: image-set(
     url('img/hero-800.avif') type('image/avif'),
@@ -72,13 +75,39 @@
       url('img/hero-1672.webp') type('image/webp')); }
   }
 
+  /* Portrait: the tall painting, full bleed. Anchored to the top because a
+     wider portrait, a tablet, crops from the bottom, and the title lives at
+     the top. The floor is what we can afford to lose. */
+  @media (max-aspect-ratio: 1/1) {
+    .art {
+      background-size: cover;
+      background-position: center top;
+      background-image: image-set(
+        url('img/hero-p-540.avif') type('image/avif') 1x,
+        url('img/hero-p-1080.avif') type('image/avif') 2x,
+        url('img/hero-p-540.webp') type('image/webp') 1x,
+        url('img/hero-p-1080.webp') type('image/webp') 2x);
+    }
+  }
+  @media (max-aspect-ratio: 1/1) and (min-width: 601px) {
+    .art { background-image: image-set(
+      url('img/hero-p-800.avif') type('image/avif') 1x,
+      url('img/hero-p-1080.avif') type('image/avif') 2x,
+      url('img/hero-p-800.webp') type('image/webp') 1x,
+      url('img/hero-p-1080.webp') type('image/webp') 2x); }
+  }
+
   /* Safari shipped image-set behind a prefix for years; without this it gets
-     no background at all rather than a smaller one. */
+     no artwork at all, and the artwork is the whole design. */
   @supports not (background-image: image-set(url('x.webp') type('image/webp'))) {
     .art { background-image: url('img/hero-1672.webp'); }
+    @media (max-aspect-ratio: 1/1) {
+      .art { background-image: url('img/hero-p-800.webp'); }
+    }
   }
-  /* Fills the space under the art on tall screens, and darkens the floor so the
-     glass panels have something solid to sit against. */
+
+  /* Darkens the floor so the glass panels have something solid to sit against,
+     in both orientations. */
   .art::after {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(to bottom,
@@ -108,39 +137,6 @@
 
   .sheet { transition: transform .3s cubic-bezier(.16,1,.3,1), opacity .3s; }
   @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
-
-  /*
-   * Portrait.
-   *
-   * The painted title spans the middle 52% of the artwork's width. Scaling the
-   * image to 188% of the viewport leaves 53% of it visible, which is the widest
-   * the art can go before the title starts losing its edges. That makes the
-   * band 105.8vw tall (188 / 1.777), and everything below it is placed against
-   * that number rather than guessed at.
-   */
-  @media (max-aspect-ratio: 13/10) {
-    :root { --band: 105.8vw; }
-    .art { background-size: 188% auto; }
-    .art::after {
-      background: linear-gradient(to bottom,
-        transparent 0%, transparent calc(var(--band) - 5rem),
-        rgba(109,69,42,.45) var(--band), rgba(61,37,23,.9) 100%);
-    }
-    /* Clear of the painted title, and sitting on the artwork's own dark floor.
-       z-index 25 keeps it above the bottom stack, which would otherwise paint
-       over it: the two are only about 40px apart on a short phone. */
-    #topnav {
-      top: calc(var(--band) - 2.9rem); right: 0; left: 0;
-      z-index: 25; justify-content: center;
-    }
-    /* Never let the list push the player off a short screen. */
-    #quick {
-      display: block;
-      max-height: calc(100dvh - var(--band) - 14rem);
-      overflow-y: auto;
-    }
-  }
-  @media (min-aspect-ratio: 13/10) { #quick { display: none; } }
 
   .no-scrollbar::-webkit-scrollbar { width: 6px; }
   .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,233,209,.25); border-radius: 999px; }
@@ -175,14 +171,6 @@
 <!-- ───────── floating cards + player ───────── -->
 <div class="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 px-3"
      style="padding-bottom: calc(0.75rem + var(--pad))">
-
-  <!-- Portrait leaves a warm field under the artwork. Rather than sit empty,
-       it carries the first few tracks so a phone can start playing without
-       opening anything. -->
-  <div id="quick" class="glass pointer-events-auto mb-1 hidden w-full max-w-md rounded-2xl p-2">
-    <p class="px-2 pb-1 text-[11px] uppercase tracking-wide text-white/70">आजची निवड</p>
-    <div id="quick-body"></div>
-  </div>
 
   <div id="card-whatsapp" class="glass pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl p-3">
     <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-700 text-base" aria-hidden="true">💬</span>
@@ -427,7 +415,6 @@ function rows(list) {
 }
 
 function render() {
-  renderQuick();
   if ($('sheet').hidden) return;
   const q = query.trim().toLowerCase();
   /* Search the same words the row actually shows. The credit line renders a
@@ -473,29 +460,6 @@ function render() {
   });
 }
 
-/* The quick list shares the sheet's row markup, so a track looks and behaves
-   the same in both places. */
-function renderQuick() {
-  const body = $('quick-body');
-  if (!body) return;
-  /* One per category, in order. SONGS opens with eight readings of the same
-     abhang, so slicing the first four would offer the same song four times. */
-  const seen = {};
-  const picks = SONGS.filter(function (s) {
-    if (seen[s.cat]) return false;
-    seen[s.cat] = 1;
-    return true;
-  }).slice(0, 5);
-  body.innerHTML = rows(picks);
-  body.querySelectorAll('[data-song]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      const song = SONGS[Number(b.dataset.song)];
-      if (queue[at] === song && yt) { playing ? yt.pauseVideo() : yt.playVideo(); }
-      else play(song, picks);
-    });
-  });
-}
-
 function openSheet(which) {
   mode = which;
   lastFocus = document.activeElement;
@@ -512,8 +476,6 @@ function closeSheet() {
   setTimeout(function () { $('sheet').hidden = true; }, 200);
   if (lastFocus) lastFocus.focus();
 }
-
-renderQuick();
 
 document.querySelectorAll('[data-sheet]').forEach(function (b) {
   b.addEventListener('click', function () { openSheet(b.dataset.sheet); });

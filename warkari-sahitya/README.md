@@ -18,20 +18,17 @@ The site's name is painted into the image, so there is no HTML title over it.
 The `<h1>` is screen-reader only, which keeps the name available to search
 engines and assistive tech without printing it twice.
 
-### Why the image is sized by width, not `cover`
+### Two paintings, one scene
 
-Measured against the real file: the painted title spans the middle 52% of the
-image. `object-fit: cover` keeps only 84% of the width on a 3:2 laptop and 32%
-on a phone, so the title loses its edges on everything narrower than 16:9.
+The landscape file is 16:9 and the portrait file is 0.463, within a hair of a
+modern phone. Each shape gets the artwork drawn for it, so the composition holds
+either way instead of a phone getting a letterboxed band with filler under it.
 
-Instead the image is sized to 100% width and pinned to the top, and the page
-continues below it in `#af7b50`, sampled from the artwork's own bottom edge.
-On ultrawide the overflow falls off the bottom, where there is only floor.
-
-On portrait the image scales to 188% of the viewport, which leaves 53% of it
-visible: the widest the art can go before the title starts to clip. That makes
-the band `105.8vw` tall, and the nav and panels are positioned against that
-number rather than eyeballed.
+Landscape is sized by width and pinned to the top rather than `cover`, because
+the painted title spans the middle 52% of that file and `cover` clips it on
+anything narrower than 16:9, a laptop included. Portrait is `cover`, anchored
+to the top: a wider portrait such as a tablet then crops from the bottom, where
+there is only floor, and never from the title.
 
 ## Audio is real
 
@@ -53,9 +50,10 @@ threshold, no target under 24px, no horizontal scroll.
 
 ## Image files
 
-`img/hero-{800,1200,1672}.{avif,webp}`. One file is fetched per screen, chosen
-by media query and served as AVIF where the browser takes it: 75 KB on a phone,
-175 KB on a desktop. The original PNG was 2.6 MB and is not in the repo.
+`img/hero-{800,1200,1672}` landscape and `img/hero-p-{540,800,1080}` portrait,
+each as AVIF and WebP. One file is fetched per screen, chosen by media query and
+density: 92 KB on a 1x phone, 175 KB on a desktop. The source PNGs were 2.6 MB
+each and are not in the repo.
 
 ## Deploying
 
