@@ -1,4 +1,6 @@
 import Nav from "@/components/Nav";
+import TanpuraCanvas from "@/components/TanpuraCanvas";
+import VelocityTilt from "@/components/VelocityTilt";
 import Footer from "@/components/Footer";
 import { Reveal, RevealWords } from "@/components/Reveal";
 import {
@@ -13,7 +15,7 @@ import {
 
 /*
  * Tailwind scans source for complete class strings, so accent classes are
- * looked up from a literal map rather than built with template strings —
+ * looked up from a literal map rather than built with template strings, since
  * `text-${accent}-deep` would compile to nothing.
  */
 const accentText: Record<Genre["accent"], string> = {
@@ -34,11 +36,17 @@ const accentRule: Record<Genre["accent"], string> = {
 
 function Hero() {
   return (
-    /* Phase 2 replaces this block with the audio-reactive tanpura canvas. The
-       type and spacing here are the layout that canvas has to sit behind. */
     <section className="relative overflow-hidden border-b border-paper-edge">
-      <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
-        <p className="text-sm tracking-[0.2em] text-ink-faint uppercase">
+      <TanpuraCanvas />
+
+      {/* Above the canvas, and carrying its own stacking context so the strings
+          can never end up painted over the headline. */}
+      <div className="relative z-10 mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
+        {/* ink-soft, not ink-faint: this is a brand label rather than metadata,
+            and on a narrow screen it is the one piece of hero type the canvas
+            can still sit behind. Measured at 5.8:1 there, against 4.1:1 for
+            ink-faint. */}
+        <p className="text-sm tracking-[0.2em] text-ink-soft uppercase">
           {site.roman}
         </p>
 
@@ -48,7 +56,7 @@ function Hero() {
 
         <Reveal delay={0.15}>
           <p className="mt-6 max-w-2xl text-lg text-ink-soft">
-            अभंगापासून कोळीगीतापर्यंत — सातशे वर्षांची मराठी गाणी एकाच ठिकाणी.
+            अभंगापासून कोळीगीतापर्यंत, सातशे वर्षांची मराठी गाणी एकाच ठिकाणी.
             टाळ, पेटी, ढोलकी आणि रंगमंच; सगळं इथे वाहतं.
           </p>
         </Reveal>
@@ -88,20 +96,24 @@ function Genres() {
           return (
             <li key={g.slug}>
               <Reveal delay={i * 0.05}>
-                <article className="h-full rounded-lg border border-paper-edge bg-paper-deep/60 p-6">
-                  <span
-                    className={`block h-1 w-10 rounded-full ${accentRule[g.accent]}`}
-                    aria-hidden
-                  />
-                  <h3 className="mt-4 font-display text-2xl text-ink">{g.name}</h3>
-                  <p className={`mt-1 text-sm ${accentText[g.accent]}`}>{g.tagline}</p>
-                  <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-soft">
-                    {g.blurb}
-                  </p>
-                  <p className="mt-5 text-sm text-ink-faint">
-                    {count} {count === 1 ? "गाणं" : "गाणी"}
-                  </p>
-                </article>
+                <VelocityTilt strength={1 + (i % 3) * 0.25}>
+                  <article className="h-full rounded-lg border border-paper-edge bg-paper-deep/60 p-6">
+                    <span
+                      className={`block h-1 w-10 rounded-full ${accentRule[g.accent]}`}
+                      aria-hidden
+                    />
+                    <h3 className="mt-4 font-display text-2xl text-ink">{g.name}</h3>
+                    <p className={`mt-1 text-sm ${accentText[g.accent]}`}>
+                      {g.tagline}
+                    </p>
+                    <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-soft">
+                      {g.blurb}
+                    </p>
+                    <p className="mt-5 text-sm text-ink-faint">
+                      {count} {count === 1 ? "गाणं" : "गाणी"}
+                    </p>
+                  </article>
+                </VelocityTilt>
               </Reveal>
             </li>
           );

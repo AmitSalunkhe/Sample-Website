@@ -21,8 +21,7 @@ npm run dev
 ## स्वरधारा, Marathi music
 
 Abhang, gaulan, bhavgeet, bhaktigeet, natyasangeet, lavani and koligeet on a
-warm-paper, Devanagari-first site. Phase 1 (foundation and content model) is in;
-motion and the player are Phase 2 and 3. See
+warm-paper, Devanagari-first site. Phase 2 (motion) is in too; the player is Phase 3. See
 [`swardhara/README.md`](./swardhara/README.md).
 
 It hosts no audio: tracks point at label-published YouTube uploads, played

@@ -28,7 +28,7 @@ function useReveal<T extends HTMLElement>(delay: number) {
 
   useIsoLayoutEffect(() => {
     // Client took over before paint, so it is safe to start from the hidden
-    // state — but only if we can actually observe our way back out of it.
+    // state, but only if we can actually observe our way back out of it.
     // If we cannot animate, we never hide, rather than hiding and immediately
     // un-hiding (which costs a second render and can flash).
     const canAnimate =

@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Tiro_Devanagari_Marathi, Mukta } from "next/font/google";
+import { Baloo_2, Mukta } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import { site } from "@/lib/content";
 import "./globals.css";
 
-/* Tiro is drawn specifically for Marathi and keeps conjuncts and the eyebrow
- * line intact at display size. It ships one weight, which is fine for a serif
- * used only on headings. */
-const tiro = Tiro_Devanagari_Marathi({
+/* Baloo 2 is the Devanagari cut of the Baloo family: rounded terminals, a high
+ * x-height and a bounce that suits a music site far better than a book serif.
+ * It is a variable font, so asking for four weights costs one file. */
+const baloo = Baloo_2({
   subsets: ["devanagari", "latin"],
-  weight: ["400"],
-  variable: "--font-tiro",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-baloo",
   display: "swap",
 });
 
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="mr" className={`${tiro.variable} ${mukta.variable}`}>
+    <html lang="mr" className={`${baloo.variable} ${mukta.variable}`}>
       <body className="grain antialiased">
         <a href="#main" className="skip-link">
           मुख्य मजकुराकडे जा

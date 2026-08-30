@@ -5,7 +5,7 @@
  *
  * The register is warkari and rangabhoomi rather than "music app": aged paper,
  * geru and haldi, tulsi green, the blue of a Pandharpur evening. It is a
- * warm-light site by design — there is no dark variant, because the whole
+ * warm-light site by design. There is no dark variant, because the whole
  * palette is built on the paper being lighter than the ink.
  */
 
@@ -16,21 +16,21 @@
   --paper-edge: #dccdb2; /* hairlines and borders */
 
   /* ink */
-  --ink: #24170e; /* body text on paper — 15.25:1 */
-  --ink-soft: #5b4636; /* secondary text — 7.73:1 */
-  --ink-faint: #736046; /* metadata — 5.26:1 on paper, 4.61:1 on paper-deep */
+  --ink: #24170e; /* body text on paper, 15.25:1 */
+  --ink-soft: #5b4636; /* secondary text, 7.73:1 */
+  --ink-faint: #736046; /* metadata, 5.26:1 on paper and 4.61:1 on paper-deep */
 
   /* Accents. Each -deep clears WCAG AA (4.5:1) against BOTH --paper and
      --paper-deep, since cards tint the surface underneath the text. */
-  --geru: #c25022; /* saffron earth — abhang */
+  --geru: #c25022; /* saffron earth, abhang */
   --geru-deep: #97370f;
-  --tulsi: #4a7a45; /* basil — natyasangeet */
+  --tulsi: #4a7a45; /* basil, natyasangeet */
   --tulsi-deep: #2f5a2b;
-  --haldi: #d9a129; /* turmeric — bhaktigeet */
+  --haldi: #d9a129; /* turmeric, bhaktigeet */
   --haldi-deep: #7d5605;
-  --nil: #2f5f86; /* Pandharpur evening — bhavgeet, koligeet */
+  --nil: #2f5f86; /* Pandharpur evening, for bhavgeet and koligeet */
   --nil-deep: #1d4363;
-  --gulal: #b03a63; /* gulal — gaulan, lavani */
+  --gulal: #b03a63; /* gulal, for gaulan and lavani */
   --gulal-deep: #85234a;
 }
 
@@ -54,9 +54,9 @@
   --color-gulal: var(--gulal);
   --color-gulal-deep: var(--gulal-deep);
 
-  /* Tiro carries Devanagari conjuncts properly at display size; Mukta is the
-     workhorse for running text. Both ship a real devanagari subset. */
-  --font-display: var(--font-tiro), Georgia, serif;
+  /* Baloo 2 is the voice of the site: rounded, warm, a little bouncy. Mukta is
+     the workhorse underneath it. Both ship a real devanagari subset. */
+  --font-display: var(--font-baloo), "Trebuchet MS", sans-serif;
   --font-sans: var(--font-mukta), system-ui, sans-serif;
 }
 
@@ -91,7 +91,12 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  line-height: 1.35;
+  font-weight: 600;
+  /* Baloo has a taller x-height than the serif it replaced, so the same
+     leading read as loose. Devanagari still needs room for matras above the
+     line, which is why this stops at 1.3 and not lower. */
+  line-height: 1.3;
+  letter-spacing: -0.005em;
   text-wrap: balance;
 }
 
@@ -122,7 +127,7 @@ h3 {
   color: var(--ink);
 }
 
-/* Skip link — offscreen until focused. */
+/* Skip link, offscreen until focused. */
 .skip-link {
   position: absolute;
   left: -9999px;

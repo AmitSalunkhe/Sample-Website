@@ -1,8 +1,8 @@
 # स्वरधारा · Swardhara
 
-A Marathi music site — अभंग, गौळण, भावगीत, भक्तिगीत, नाट्यसंगीत, लावणी, कोळीगीत.
+A Marathi music site: अभंग, गौळण, भावगीत, भक्तिगीत, नाट्यसंगीत, लावणी, कोळीगीत.
 
-Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis —
+Next.js 16, React 19, Tailwind v4, Three.js / R3F, Framer Motion and Lenis:
 the same stack as `luxe-jewellery` and `lumiere-studio`, so `Reveal`,
 `SmoothScroll` and `lib/perf.ts` are shared patterns rather than rewrites.
 
@@ -24,8 +24,8 @@ npm run dev
 
 Not a "music app" look. The register is warkari and rangabhoomi: aged paper,
 geru and haldi, tulsi green, a Pandharpur-evening blue. It is warm-light by
-design and has **no dark variant** — the entire palette rests on the paper being
-lighter than the ink, and inverting it would not be the same site.
+design and has **no dark variant**, because the entire palette rests on the
+paper being lighter than the ink. Inverting it would not be the same site.
 
 Every `-deep` accent clears WCAG AA (4.5:1) against *both* `--paper` and
 `--paper-deep`, because cards tint the surface under their own text. Two tokens
@@ -53,23 +53,23 @@ well-documented. It is the *links* that are pending, not the facts.
 
 ## Phases
 
-- [x] **1 — Foundation.** Scaffold, tokens, Devanagari fonts, content model, static home (hero, genres, playlists, poets), a11y baseline.
-- [ ] **2 — Motion.** Audio-reactive tanpura hero in GLSL/R3F, scroll-velocity warp on genre cards, diya particle field. Real-time WebGL, not baked video (see below).
-- [ ] **3 — Player.** YouTube IFrame API, custom chrome, persistent across routes, queue. Verify and fill every `youtubeId`.
-- [ ] **4 — Routes.** `/prakar/[slug]`, `/yadi/[slug]`, `/kavi/[slug]`.
-- [ ] **5 — Polish.** Mobile, full a11y audit, Lighthouse, perf budget, PWA install.
+- [x] **1. Foundation.** Scaffold, tokens, Devanagari fonts, content model, static home (hero, genres, playlists, poets), a11y baseline.
+- [x] **2. Motion.** Tanpura hero in GLSL/R3F, motes, scroll-velocity tilt on the genre cards. Real-time WebGL, not baked video (see below).
+- [ ] **3. Player.** YouTube IFrame API, custom chrome, persistent across routes, queue. Verify and fill every `youtubeId`.
+- [ ] **4. Routes.** `/prakar/[slug]`, `/yadi/[slug]`, `/kavi/[slug]`.
+- [ ] **5. Polish.** Mobile, full a11y audit, Lighthouse, perf budget, PWA install.
 
 ### On Blender
 
 Motion is real-time WebGL, not Blender renders. Blender is not installed on this
 machine, and pre-rendered video would cost tens of megabytes for something a
 shader does at 60fps and at any viewport size. If a scene genuinely needs
-modelled geometry later, the path is: author in Blender → export glTF → load
+modelled geometry later, the path is: author in Blender, export glTF, load
 through R3F. The shader work stays either way.
 
 ## Before this goes live
 
-1. Fill every `youtubeId` (Phase 3) — until then nothing is playable.
+1. Fill every `youtubeId` (Phase 3). Until then nothing is playable.
 2. No poet portraits yet. Most of these figures are long dead and their images
    are likely public domain, but confirm each one before publishing it.
 3. Decide the real domain and site name; `site` in `content.ts` is the single

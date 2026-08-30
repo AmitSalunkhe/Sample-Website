@@ -19,7 +19,7 @@ export default function Nav() {
           className="-my-2.5 inline-block py-2.5 font-display text-2xl leading-none text-ink"
         >
           {site.name}
-          <span className="sr-only"> — {site.roman}</span>
+          <span className="sr-only">, {site.roman}</span>
         </Link>
 
         <span className="hidden text-sm text-ink-faint sm:inline">{site.tagline}</span>
