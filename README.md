@@ -1,19 +1,33 @@
 # Sample Websites
 
-Two production-grade reference sites built as client-facing demos.
+Production-grade reference sites built as client-facing demos.
 
 | | Project | Stack |
 |---|---|---|
 | 💍 | [`luxe-jewellery/`](./luxe-jewellery), **Aurelia**, fine jewellery | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
 | 📷 | [`lumiere-studio/`](./lumiere-studio), **Lumière**, photography & family films | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
+| 🪕 | [`swardhara/`](./swardhara), **स्वरधारा**, Marathi music | Next.js 16 · React 19 · Tailwind v4 · Three.js / R3F · Framer Motion · Lenis |
 
-## Running either one
+## Running any of them
 
 ```bash
-cd luxe-jewellery   # or: cd lumiere-studio
+cd luxe-jewellery   # or: cd lumiere-studio, cd swardhara
 npm install
 npm run dev
 ```
+
+---
+
+## स्वरधारा, Marathi music
+
+Abhang, gaulan, bhavgeet, bhaktigeet, natyasangeet, lavani and koligeet on a
+warm-paper, Devanagari-first site. Phase 1 (foundation and content model) is in;
+motion and the player are Phase 2 and 3. See
+[`swardhara/README.md`](./swardhara/README.md).
+
+It hosts no audio: tracks point at label-published YouTube uploads, played
+through the IFrame API behind custom UI. Every `youtubeId` is still `null` and
+tracks render as `लवकरच` until each link is verified.
 
 ---
 

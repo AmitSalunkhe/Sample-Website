@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "swardhara",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "swardhara", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

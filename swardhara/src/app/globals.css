@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * Swardhara design tokens.
+ *
+ * The register is warkari and rangabhoomi rather than "music app": aged paper,
+ * geru and haldi, tulsi green, the blue of a Pandharpur evening. It is a
+ * warm-light site by design — there is no dark variant, because the whole
+ * palette is built on the paper being lighter than the ink.
+ */
+
+:root {
+  /* surfaces */
+  --paper: #f6efe2; /* aged page, the page background */
+  --paper-deep: #ece0cc; /* recessed panels, table stripes */
+  --paper-edge: #dccdb2; /* hairlines and borders */
+
+  /* ink */
+  --ink: #24170e; /* body text on paper — 15.25:1 */
+  --ink-soft: #5b4636; /* secondary text — 7.73:1 */
+  --ink-faint: #736046; /* metadata — 5.26:1 on paper, 4.61:1 on paper-deep */
+
+  /* Accents. Each -deep clears WCAG AA (4.5:1) against BOTH --paper and
+     --paper-deep, since cards tint the surface underneath the text. */
+  --geru: #c25022; /* saffron earth — abhang */
+  --geru-deep: #97370f;
+  --tulsi: #4a7a45; /* basil — natyasangeet */
+  --tulsi-deep: #2f5a2b;
+  --haldi: #d9a129; /* turmeric — bhaktigeet */
+  --haldi-deep: #7d5605;
+  --nil: #2f5f86; /* Pandharpur evening — bhavgeet, koligeet */
+  --nil-deep: #1d4363;
+  --gulal: #b03a63; /* gulal — gaulan, lavani */
+  --gulal-deep: #85234a;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-paper-edge: var(--paper-edge);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-geru: var(--geru);
+  --color-geru-deep: var(--geru-deep);
+  --color-tulsi: var(--tulsi);
+  --color-tulsi-deep: var(--tulsi-deep);
+  --color-haldi: var(--haldi);
+  --color-haldi-deep: var(--haldi-deep);
+  --color-nil: var(--nil);
+  --color-nil-deep: var(--nil-deep);
+  --color-gulal: var(--gulal);
+  --color-gulal-deep: var(--gulal-deep);
+
+  /* Tiro carries Devanagari conjuncts properly at display size; Mukta is the
+     workhorse for running text. Both ship a real devanagari subset. */
+  --font-display: var(--font-tiro), Georgia, serif;
+  --font-sans: var(--font-mukta), system-ui, sans-serif;
+}
+
+html {
+  /* Lenis drives smooth scrolling; this is the no-JS and reduced-motion path. */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* Devanagari matras sit above the line; give them room. */
+  line-height: 1.75;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+/*
+ * Paper grain. A single tiled SVG turbulence rather than an image request, at a
+ * low enough opacity to read as fibre and not as noise. Pinned to the viewport
+ * so it does not scroll with content and reveal the tile seam.
+ */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Focus: visible on every accent, and never removed. */
+:focus-visible {
+  outline: 2px solid var(--geru-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--haldi);
+  color: var(--ink);
+}
+
+/* Skip link — offscreen until focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--ink);
+  color: var(--paper);
+}
