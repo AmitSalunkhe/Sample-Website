@@ -4,8 +4,25 @@
     {
       "name": "swardhara",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "swardhara", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "swardhara",
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "warkari",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8080",
+        "--directory",
+        "warkari-sahitya"
+      ],
+      "port": 8080
     }
   ]
 }
