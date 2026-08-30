@@ -151,13 +151,22 @@ export default function PlayerProvider({ children }: { children: ReactNode }) {
     };
   }, [current, advance]);
 
-  /* Poll position only while something is actually playing. */
+  /* Poll position only while something is actually playing.
+   *
+   * Duration is refreshed here too, not just on the state change. After
+   * loadVideoById, YouTube reports PLAYING before the new video's metadata has
+   * landed, so getDuration() at that moment still returns the previous track's
+   * length. Read once, it stays wrong for the rest of the track and the
+   * scrubber ends up scaled to the wrong song. Re-reading it costs nothing and
+   * corrects itself within half a second. */
   useEffect(() => {
     if (!playing || !player.current) return;
     const id = window.setInterval(() => {
       const p = player.current;
       if (!p) return;
       setPosition(p.getCurrentTime());
+      const d = p.getDuration();
+      if (Number.isFinite(d) && d > 0) setDuration((prev) => (prev === d ? prev : d));
     }, 500);
     return () => window.clearInterval(id);
   }, [playing]);

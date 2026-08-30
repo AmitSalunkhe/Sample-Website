@@ -2,47 +2,49 @@
  * Swardhara content model.
  *
  * Everything the site renders comes from this file. Pages read it; no component
- * hard-codes a song title or a poet's name.
+ * hard-codes a title or a performer's name.
  *
- * On audio: we never host recordings. Nearly every well-known recording of these
- * songs is owned by Saregama / HMV, Times Music or a similar label, so a track
- * here is a *pointer* to a YouTube video that the label itself published, played
- * through the YouTube IFrame API. `youtubeId: null` means the pointer has not
- * been verified yet, and such a track renders as unplayable rather than as a
- * broken player. See PHASE 3 in README.md before filling these in.
+ * On sourcing: the site hosts no audio. Every track points at a YouTube upload
+ * from the collection this site was built around, played through the IFrame API
+ * behind our own UI. Each id below was checked in a live player: it constructs,
+ * fires onReady and reports a real duration. Four videos from the source
+ * playlists are missing here because they are private and report 0:00, and a
+ * track that cannot play is worse than one that is absent.
+ *
+ * On attribution: `singer` is filled only where the video's own title or channel
+ * names the performer, and `poet` only where the abhang's authorship is not in
+ * doubt. Both are left out rather than guessed. `channel` is always the real
+ * uploader, so credit stays traceable to whoever put the recording up.
  */
 
 export type Slug = string;
 
-/** A form of Marathi song. The site is organised around these first. */
 export type Genre = {
   slug: Slug;
-  /** Devanagari name, used everywhere in the UI. */
   name: string;
-  /** Latin transliteration, used for URLs, alt text and search. */
   roman: string;
-  /** One line, shown on the genre card. */
   tagline: string;
-  /** Two or three sentences, shown at the top of the genre page. */
   blurb: string;
-  /** Drives the card's colour treatment. Matches an accent token in globals.css. */
   accent: "geru" | "tulsi" | "haldi" | "nil" | "gulal";
 };
 
 export type Track = {
   slug: Slug;
+  /** The composition, not the video's title. Video titles carry hashtags. */
   title: string;
   roman: string;
   genre: Slug;
-  /** Lyricist or composing saint. Free text: some are traditional. */
-  poet: string;
-  /** Best-known playback artist for the recording we point at. */
-  singer: string;
-  composer?: string;
-  /**
-   * YouTube video id for a label-published upload.
-   * null = not yet verified. Never guess one: a wrong id plays the wrong song.
-   */
+  /** Left out when authorship is uncertain. */
+  poet?: string;
+  /** Left out when no performer is named. */
+  singer?: string;
+  /** The raga, where the recording states one. Half of this collection does. */
+  raga?: string;
+  /** The uploading channel. Always present: this is who to credit. */
+  channel: string;
+  /** Seconds, as the player reported them. Used to flag long sessions. */
+  seconds: number;
+  /** null means no verified upload. Never guessed. */
   youtubeId: string | null;
 };
 
@@ -50,12 +52,9 @@ export type Poet = {
   slug: Slug;
   name: string;
   roman: string;
-  /** e.g. "इ.स. १६०८ ते १६५०". Empty string for traditional or unknown. */
   years: string;
-  /** One line under the name. */
   epithet: string;
   blurb: string;
-  genres: Slug[];
 };
 
 export type Playlist = {
@@ -63,7 +62,6 @@ export type Playlist = {
   name: string;
   roman: string;
   blurb: string;
-  /** Track slugs, in playing order. */
   tracks: Slug[];
 };
 
@@ -82,66 +80,374 @@ export const genres: Genre[] = [
     accent: "geru",
   },
   {
-    slug: "gaulan",
-    name: "गौळण",
-    roman: "Gaulan",
-    tagline: "मथुरेच्या वाटेवरचा खट्याळ अडवा",
+    slug: "kirtan",
+    name: "कीर्तन",
+    roman: "Kirtan",
+    tagline: "गोष्ट, चाल आणि टाळ एकत्र",
     blurb:
-      "गवळणी दही-दूध घेऊन मथुरेला निघाल्या आहेत आणि कृष्ण वाट अडवून उभा आहे. भक्तीत शृंगार आणि विनोद मिसळणारा हा प्रकार कीर्तनाच्या पूर्वरंगात हमखास येतो.",
-    accent: "gulal",
-  },
-  {
-    slug: "bhavgeet",
-    name: "भावगीत",
-    roman: "Bhavgeet",
-    tagline: "देव नाही, फक्त माणसाचं मन",
-    blurb:
-      "विसाव्या शतकात मराठी कवितेला चाल लागली आणि भावगीत जन्मलं. प्रेम, विरह, पाऊस, आठवण. देवाचा उल्लेख न करता गायलेलं सगळं.",
-    accent: "nil",
-  },
-  {
-    slug: "bhaktigeet",
-    name: "भक्तिगीत",
-    roman: "Bhaktigeet",
-    tagline: "पहाटेच्या रेडिओवरचा स्वर",
-    blurb:
-      "अभंगाइतकं जुनं नाही आणि भावगीताइतकं ऐहिक नाही. गणपती, दत्त, राम, विठ्ठल. आधुनिक चालींमध्ये बांधलेली स्तुती.",
-    accent: "haldi",
-  },
-  {
-    slug: "natyasangeet",
-    name: "नाट्यसंगीत",
-    roman: "Natyasangeet",
-    tagline: "रंगमंचावर उभा राहिलेला राग",
-    blurb:
-      "संगीत नाटकाची देणगी. शास्त्रीय रागाला नाटकाचा प्रसंग दिला की नाट्यपद तयार होतं, आणि प्रेक्षक 'वन्समोअर' म्हणेपर्यंत ते संपत नाही.",
+      "नामदेवांनी सुरू केलेली परंपरा. कीर्तनकार एका अभंगाभोवती निरूपण उभं करतो, मध्येच गातो, मध्येच बोलतो, आणि श्रोता कधी गुंतला हे त्याचं त्यालाच कळत नाही.",
     accent: "tulsi",
   },
   {
-    slug: "lavani",
-    name: "लावणी",
-    roman: "Lavani",
-    tagline: "ढोलकीवर थांबलेला ठेका",
+    slug: "bhajan",
+    name: "भजन",
+    roman: "Bhajan",
+    tagline: "नामाचा घोष, पुन्हा पुन्हा",
     blurb:
-      "तमाशाच्या फडातून आलेली, ढोलकीच्या तालावर चालणारी लावणी. शृंगारिक आणि निर्गुणी, दोन्ही रूपांत ती तितकीच खरी आहे.",
+      "एकच ओळ, वाढत जाणारा वेग, आणि सगळ्यांचे आवाज एकत्र. भजनाला श्रोता नसतो, सगळेच सहभागी असतात.",
+    accent: "haldi",
+  },
+  {
+    slug: "panchpadi",
+    name: "पंचपदी",
+    roman: "Panchpadi",
+    tagline: "एका बैठकीत रागांचा प्रवास",
+    blurb:
+      "सांप्रदायिक चालींची मालिका. एका पदातून दुसऱ्यात, एका रागातून दुसऱ्यात, न थांबता; ऐकताना कधी राग बदलला हे लक्षातही येत नाही.",
+    accent: "nil",
+  },
+  {
+    slug: "stotra",
+    name: "स्तोत्र",
+    roman: "Stotra",
+    tagline: "संस्कृतातली स्तुती",
+    blurb:
+      "अथर्वशीर्ष, महालक्ष्मी अष्टक, देवीची स्तोत्रं. अभंगापेक्षा जुनी भाषा आणि घट्ट बांधलेला छंद, म्हणून पाठ करायला सोपी.",
     accent: "gulal",
   },
   {
-    slug: "koligeet",
-    name: "कोळीगीत",
-    roman: "Koligeet",
-    tagline: "समुद्रावरून परत येणारी होडी",
+    slug: "maifil",
+    name: "मैफल",
+    roman: "Maifil",
+    tagline: "सुरुवातीपासून शेवटपर्यंत",
     blurb:
-      "कोकण किनाऱ्याच्या कोळी समाजाची गाणी. लाटांचा हेलकावा थेट तालात उतरतो, म्हणून कोळीगीत ऐकताना पाय आपोआप हलतात.",
-    accent: "nil",
+      "तुकडे नाहीत, पूर्ण कार्यक्रम. टाळ्यांसह आणि मध्यंतरासह, जसा तो प्रत्यक्ष घडला तसा.",
+    accent: "tulsi",
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/* Poets, saints and the voices that carried them                      */
+/* Tracks                                                              */
+/* ------------------------------------------------------------------ */
+
+export const tracks: Track[] = [
+  /* ---- रूप पाहता लोचनी: one abhang, eight readings ---- */
+  {
+    slug: "rup-pahata-lochani-pahadi",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    raga: "पहाडी",
+    channel: "Vasantgadkar Official",
+    seconds: 406,
+    youtubeId: "P5aaMcwNtvM",
+  },
+  {
+    slug: "rup-pahata-lochani-kirwani",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    raga: "किरवाणी आणि दरबारी कानडा",
+    channel: "Vasantgadkar Official",
+    seconds: 436,
+    youtubeId: "CPEerVipX2c",
+  },
+  {
+    slug: "rup-pahata-lochani-punyatithi",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    channel: "Vasantgadkar Official",
+    seconds: 459,
+    youtubeId: "HeoEzp7OcDo",
+  },
+  {
+    slug: "rup-pahata-lochani-mestry",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "सुंदर मेस्त्री",
+    channel: "Sundar Mestry",
+    seconds: 251,
+    youtubeId: "pxqzfwWFuP8",
+  },
+  {
+    slug: "rup-pahata-lochani-gajbhar",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "उज्वल गजभार",
+    channel: "Ujwal Gajbhar Official",
+    seconds: 810,
+    youtubeId: "5XnYFWhoNO8",
+  },
+  {
+    slug: "rup-pahata-lochani-patil",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "ह.भ.प. पुरुषोत्तम महाराज पाटील",
+    channel: "Santseva Trust",
+    seconds: 541,
+    youtubeId: "mhUELq6SOJc",
+  },
+  {
+    slug: "rup-pahata-lochani-nerulkar",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "रामदास पाटील नेरुळकर",
+    channel: "RAMDAS PATIL NERULKAR",
+    seconds: 555,
+    youtubeId: "pCEUzCaNNyw",
+  },
+  {
+    slug: "rup-pahata-lochani-rupavali",
+    title: "रूप पाहता लोचनी",
+    roman: "Rup Pahata Lochani",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "कल्पेश जाधव",
+    channel: "हार्मोनियम मित्र KALPESH JADHAV",
+    seconds: 720,
+    youtubeId: "eZFu49rGwCY",
+  },
+
+  /* ---- सुंदर ते ध्यान ---- */
+  {
+    slug: "sundar-te-dhyan-madhuvanti",
+    title: "सुंदर ते ध्यान",
+    roman: "Sundar Te Dhyan",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    raga: "मधुवंती",
+    channel: "Vasantgadkar Official",
+    seconds: 552,
+    youtubeId: "8x3OZOxq1yU",
+  },
+  {
+    slug: "sundar-te-dhyan-vasantgadkar",
+    title: "सुंदर ते ध्यान उभे विटेवरी",
+    roman: "Sundar Te Dhyan Ubhe Vitevari",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    channel: "Vasantgadkar Official",
+    seconds: 467,
+    youtubeId: "NyebcYdEuQs",
+  },
+  {
+    slug: "sundar-te-dhyan-punyatithi",
+    title: "सुंदर ते ध्यान",
+    roman: "Sundar Te Dhyan",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    channel: "Vasantgadkar Official",
+    seconds: 476,
+    youtubeId: "tp5sIkBMywI",
+  },
+  {
+    slug: "sundar-te-dhyan-deshmukh",
+    title: "सुंदर ते ध्यान उभे विटेवरी",
+    roman: "Sundar Te Dhyan Ubhe Vitevari",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "कृष्णा देशमुख",
+    channel: "Prabhat Parv Bhajan Kirtan",
+    seconds: 601,
+    youtubeId: "btG9zvfrTew",
+  },
+
+  /* ---- इतर अभंग ---- */
+  {
+    slug: "nitya-pathache-bara-abhang",
+    title: "नित्य पाठाचे बारा अभंग",
+    roman: "Nitya Pathache Bara Abhang",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    channel: "Vasantgadkar Official",
+    seconds: 1977,
+    youtubeId: "2bkPQSXgcnw",
+  },
+  {
+    slug: "sampatti-sohala",
+    title: "संपत्ती सोहळा नावडे मनाला",
+    roman: "Sampatti Sohala Navade Manala",
+    genre: "abhang",
+    poet: "संत तुकाराम",
+    channel: "Naad Vithalacha",
+    seconds: 334,
+    youtubeId: "YP9ihYZ9LeA",
+  },
+  {
+    slug: "dhanya-dhanya-janma",
+    title: "धन्य धन्य जन्म ज्याचा",
+    roman: "Dhanya Dhanya Janma Jyacha",
+    genre: "abhang",
+    singer: "बुवा सुशील गोठणकर",
+    channel: "Thunder is live",
+    seconds: 428,
+    youtubeId: "PEBmKTMGAiQ",
+  },
+  {
+    slug: "purva-punya-ase",
+    title: "पूर्व पुण्य असे जयाचे पदरी",
+    roman: "Purva Punya Ase Jayache Padari",
+    genre: "abhang",
+    singer: "पूजा भुरुक, वैष्णवी मावळे",
+    channel: "Musical Vaipoo",
+    seconds: 263,
+    youtubeId: "veEhZncx5hM",
+  },
+  {
+    slug: "deh-vitthal",
+    title: "देह विठ्ठल",
+    roman: "Deh Vitthal",
+    genre: "abhang",
+    singer: "अवधूत गांधी",
+    channel: "Panorama Music Marathi",
+    seconds: 286,
+    youtubeId: "fqA8u17jIcU",
+  },
+
+  /* ---- कीर्तन ---- */
+  {
+    slug: "kanhoba-tuzi-ghongadi",
+    title: "कान्होबा तुझी घोंगडी",
+    roman: "Kanhoba Tuzi Ghongadi",
+    genre: "kirtan",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    raga: "शिवरंजनी",
+    channel: "Vasantgadkar Official",
+    seconds: 493,
+    youtubeId: "UXSgXNAJQWo",
+  },
+  {
+    slug: "krishna-mazi-mata",
+    title: "कृष्ण माझी माता",
+    roman: "Krishna Mazi Mata",
+    genre: "kirtan",
+    singer: "बाळकृष्ण दादा वसंतगडकर",
+    raga: "पारंपरिक चाल",
+    channel: "Vasantgadkar Official",
+    seconds: 514,
+    youtubeId: "-XPnZLNd1-Q",
+  },
+
+  /* ---- भजन ---- */
+  {
+    slug: "jay-jay-ram-krishna-hari",
+    title: "जय जय राम कृष्ण हरी",
+    roman: "Jay Jay Ram Krishna Hari",
+    genre: "bhajan",
+    channel: "HARMONIUM MELODY Adhyatma",
+    seconds: 721,
+    youtubeId: "a-vjUwsREvA",
+  },
+  {
+    slug: "jay-jay-ram-krishna-hari-sarang",
+    title: "जय जय राम कृष्ण हरी",
+    roman: "Jay Jay Ram Krishna Hari",
+    genre: "bhajan",
+    raga: "सारंग",
+    channel: "HARMONIUM MELODY Adhyatma",
+    seconds: 991,
+    youtubeId: "tLdEc5VaxCs",
+  },
+
+  /* ---- पंचपदी ---- */
+  {
+    slug: "panchpadi-bhag-20",
+    title: "पंचपदी, भाग २०",
+    roman: "Panchpadi Bhag 20",
+    genre: "panchpadi",
+    singer: "अरुण कोठावळे",
+    raga: "सांप्रदायिक चाली",
+    channel: "Arun kothawale",
+    seconds: 1481,
+    youtubeId: "XAv80aKEyv8",
+  },
+
+  /* ---- स्तोत्र ---- */
+  {
+    slug: "ganpati-atharvashirsha",
+    title: "गणपती अथर्वशीर्ष",
+    roman: "Ganpati Atharvashirsha",
+    genre: "stotra",
+    singer: "सूर्यगायत्री",
+    channel: "Times Music Spiritual",
+    seconds: 402,
+    youtubeId: "qpJ8dFMgtGs",
+  },
+  {
+    slug: "mahalaxmi-ashtakam",
+    title: "महालक्ष्मी अष्टकम",
+    roman: "Mahalaxmi Ashtakam",
+    genre: "stotra",
+    channel: "Bhakti Mantras India",
+    seconds: 590,
+    youtubeId: "zG2qzHSfYi0",
+  },
+  {
+    slug: "jagat-janani-ambamata",
+    title: "जगत जननी तू अंबामाता",
+    roman: "Jagat Janani Tu Ambamata",
+    genre: "stotra",
+    singer: "तेजस मेस्त्री",
+    channel: "MANISH TAMBOSKAR_PAKHAWAJ",
+    seconds: 270,
+    youtubeId: "CK1FdwSGR48",
+  },
+  {
+    slug: "devi-stotra-sangrah",
+    title: "देवी स्तोत्र आणि आरती संग्रह",
+    roman: "Devi Stotra Ani Aarti Sangrah",
+    genre: "stotra",
+    channel: "Bhakti Mantras India",
+    seconds: 3966,
+    youtubeId: "m8QDTCjDrpM",
+  },
+
+  /* ---- मैफल ---- */
+  {
+    slug: "smaran-lata",
+    title: "स्मरण लता",
+    roman: "Smaran Lata",
+    genre: "maifil",
+    singer: "अंजली आणि नंदिनी गायकवाड",
+    channel: "Maifil Alibag",
+    seconds: 8994,
+    youtubeId: "q3IYYAIxtMY",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* The poets whose words are actually sung here                        */
 /* ------------------------------------------------------------------ */
 
 export const poets: Poet[] = [
+  {
+    slug: "tukaram",
+    name: "संत तुकाराम",
+    roman: "Sant Tukaram",
+    years: "इ.स. १६०८ ते १६५०",
+    epithet: "जगद्गुरू",
+    blurb:
+      "देहूचा हा वाणी सर्वांत थेट बोलतो. दांभिकपणावर तो तुटून पडतो आणि विठ्ठलाशी भांडतोही. इथले बहुतेक अभंग त्याचेच आहेत.",
+  },
   {
     slug: "dnyaneshwar",
     name: "संत ज्ञानेश्वर",
@@ -149,8 +455,7 @@ export const poets: Poet[] = [
     years: "इ.स. १२७५ ते १२९६",
     epithet: "माउली",
     blurb:
-      "वयाच्या एकविसाव्या वर्षी समाधी घेणाऱ्या या कवीने गीतेचं मराठीत भाष्य लिहिलं आणि मराठी भाषेला तत्त्वज्ञान बोलायला शिकवलं. 'पसायदान' आजही सभा संपवतं.",
-    genres: ["abhang"],
+      "वयाच्या एकविसाव्या वर्षी समाधी घेणाऱ्या या कवीने गीतेचं मराठीत भाष्य लिहिलं आणि मराठी भाषेला तत्त्वज्ञान बोलायला शिकवलं.",
   },
   {
     slug: "namdev",
@@ -159,8 +464,7 @@ export const poets: Poet[] = [
     years: "इ.स. १२७० ते १३५०",
     epithet: "कीर्तनाचा आद्य प्रवर्तक",
     blurb:
-      "पंढरपूरचा हा शिंपी कवी मराठी आणि हिंदी दोन्हींत लिहितो, आणि त्याचे अभंग गुरू ग्रंथ साहिबातही आहेत. भक्तीला महाराष्ट्राबाहेर नेणारा पहिला आवाज.",
-    genres: ["abhang"],
+      "पंढरपूरचा हा शिंपी कवी मराठी आणि हिंदी दोन्हींत लिहितो. कीर्तन नावाचा प्रकार त्याच्यापासून सुरू होतो.",
   },
   {
     slug: "eknath",
@@ -168,236 +472,7 @@ export const poets: Poet[] = [
     roman: "Sant Eknath",
     years: "इ.स. १५३३ ते १५९९",
     epithet: "भारूडकार",
-    blurb:
-      "पैठणच्या एकनाथांनी भारूड लिहिलं. वरून विनोदी रूपक, आतून अध्यात्म. गौळणींनाही त्यांनीच साहित्याचा दर्जा दिला.",
-    genres: ["abhang", "gaulan"],
-  },
-  {
-    slug: "tukaram",
-    name: "संत तुकाराम",
-    roman: "Sant Tukaram",
-    years: "इ.स. १६०८ ते १६५०",
-    epithet: "जगद्गुरू",
-    blurb:
-      "देहूचा हा वाणी सर्वांत थेट बोलतो. दांभिकपणावर तो तुटून पडतो आणि विठ्ठलाशी भांडतोही. मराठीतली सर्वांत निर्भय कविता त्याची आहे.",
-    genres: ["abhang"],
-  },
-  {
-    slug: "bahinabai",
-    name: "बहिणाबाई चौधरी",
-    roman: "Bahinabai Chaudhari",
-    years: "इ.स. १८८० ते १९५१",
-    epithet: "निरक्षर कवयित्री",
-    blurb:
-      "शेतात काम करताना अहिराणी-मराठीत ओव्या रचणाऱ्या बहिणाबाई स्वतः लिहू-वाचू शकत नव्हत्या. त्यांच्या मुलाने त्या लिहून ठेवल्या नसत्या तर हे सगळं हरवलं असतं.",
-    genres: ["bhavgeet"],
-  },
-  {
-    slug: "gadima",
-    name: "ग. दि. माडगूळकर",
-    roman: "G. D. Madgulkar",
-    years: "इ.स. १९१९ ते १९७७",
-    epithet: "आधुनिक वाल्मिकी",
-    blurb:
-      "'गीतरामायण' लिहून त्यांनी रामायण रेडिओवर आणलं आणि संपूर्ण महाराष्ट्र दर आठवड्याला ऐकत बसला. गदिमांशिवाय मराठी भावगीताचा इतिहास लिहिता येत नाही.",
-    genres: ["bhavgeet", "bhaktigeet"],
-  },
-  {
-    slug: "sudhir-phadke",
-    name: "सुधीर फडके",
-    roman: "Sudhir Phadke",
-    years: "इ.स. १९१९ ते २००२",
-    epithet: "बाबूजी",
-    blurb:
-      "गदिमांचे शब्द ज्या आवाजात पोहोचले तो आवाज. संगीतकार आणि गायक दोन्ही. 'गीतरामायण' हे त्यांचं आणि गदिमांचं संयुक्त स्मारक आहे.",
-    genres: ["bhavgeet", "bhaktigeet"],
-  },
-  {
-    slug: "lata-mangeshkar",
-    name: "लता मंगेशकर",
-    roman: "Lata Mangeshkar",
-    years: "इ.स. १९२९ ते २०२२",
-    epithet: "स्वरसम्राज्ञी",
-    blurb:
-      "हिंदीत जग जिंकण्याआधी आणि नंतरही तिने मराठी अभंग, भावगीत आणि कोळीगीत गायलं. मराठी माणसासाठी ती आधी 'दीदी' आहे, मग बाकी सगळं.",
-    genres: ["abhang", "bhavgeet", "koligeet"],
-  },
-];
-
-/* ------------------------------------------------------------------ */
-/* Tracks                                                              */
-/* ------------------------------------------------------------------ */
-/* youtubeId is deliberately null across the board. See the note at the top of
- * this file. Phase 3 verifies each one against a label-published upload. */
-
-export const tracks: Track[] = [
-  {
-    slug: "pasaydan",
-    title: "पसायदान",
-    roman: "Pasaydan",
-    genre: "abhang",
-    poet: "संत ज्ञानेश्वर",
-    singer: "लता मंगेशकर",
-    composer: "हृदयनाथ मंगेशकर",
-    youtubeId: null,
-  },
-  {
-    slug: "he-vishwachi-maze-ghar",
-    title: "हे विश्वचि माझे घर",
-    roman: "He Vishwachi Maze Ghar",
-    genre: "abhang",
-    poet: "संत ज्ञानेश्वर",
-    singer: "किशोरी आमोणकर",
-    youtubeId: null,
-  },
-  {
-    slug: "sundar-te-dhyan",
-    title: "सुंदर ते ध्यान",
-    roman: "Sundar Te Dhyan",
-    genre: "abhang",
-    poet: "संत तुकाराम",
-    singer: "पं. भीमसेन जोशी",
-    youtubeId: null,
-  },
-  {
-    slug: "je-ka-ranjale-ganjale",
-    title: "जे का रंजले गांजले",
-    roman: "Je Ka Ranjale Ganjale",
-    genre: "abhang",
-    poet: "संत तुकाराम",
-    singer: "पं. भीमसेन जोशी",
-    youtubeId: null,
-  },
-  {
-    slug: "teerth-vitthal",
-    title: "तीर्थ विठ्ठल क्षेत्र विठ्ठल",
-    roman: "Teerth Vitthal Kshetra Vitthal",
-    genre: "abhang",
-    poet: "संत नामदेव",
-    singer: "पं. भीमसेन जोशी",
-    youtubeId: null,
-  },
-  {
-    slug: "vithu-mauli",
-    title: "विठू माउली तू माउली जगाची",
-    roman: "Vithu Mauli Tu Mauli Jagachi",
-    genre: "bhaktigeet",
-    poet: "पारंपरिक",
-    singer: "प्रल्हाद शिंदे",
-    youtubeId: null,
-  },
-  {
-    slug: "yamuna-jali",
-    title: "यमुनाजळी खेळू खेळ",
-    roman: "Yamunajali Khelu Khel",
-    genre: "gaulan",
-    poet: "पारंपरिक",
-    singer: "आशा भोसले",
-    youtubeId: null,
-  },
-  {
-    slug: "radha-hi-bawari",
-    title: "राधा ही बावरी",
-    roman: "Radha Hi Bawari",
-    genre: "bhavgeet",
-    poet: "अश्विनी शेंडे",
-    singer: "श्रीधर फडके",
-    composer: "श्रीधर फडके",
-    youtubeId: null,
-  },
-  {
-    slug: "ghana-ghana-mala",
-    title: "घन घन माला नभी दाटल्या",
-    roman: "Ghan Ghan Mala Nabhi Datalya",
-    genre: "bhavgeet",
-    poet: "ग. दि. माडगूळकर",
-    singer: "सुधीर फडके",
-    composer: "सुधीर फडके",
-    youtubeId: null,
-  },
-  {
-    slug: "he-bandh-reshmache",
-    title: "हे बंध रेशमाचे",
-    roman: "He Bandh Reshmache",
-    genre: "bhavgeet",
-    poet: "शांता शेळके",
-    singer: "आशा भोसले",
-    youtubeId: null,
-  },
-  {
-    slug: "man-vadhay-vadhay",
-    title: "मन वढाय वढाय",
-    roman: "Man Vadhay Vadhay",
-    genre: "bhavgeet",
-    poet: "बहिणाबाई चौधरी",
-    singer: "आशा भोसले",
-    youtubeId: null,
-  },
-  {
-    slug: "swayamvar-zale-sitecha",
-    title: "स्वयंवर झाले सीतेचे",
-    roman: "Swayamvar Zale Sitecha",
-    genre: "bhaktigeet",
-    poet: "ग. दि. माडगूळकर",
-    singer: "सुधीर फडके",
-    composer: "सुधीर फडके",
-    youtubeId: null,
-  },
-  {
-    slug: "he-surano-chandra-vha",
-    title: "हे सुरांनो चंद्र व्हा",
-    roman: "He Surano Chandra Vha",
-    genre: "natyasangeet",
-    poet: "वसंत कानेटकर",
-    singer: "पं. वसंतराव देशपांडे",
-    composer: "पं. जितेंद्र अभिषेकी",
-    youtubeId: null,
-  },
-  {
-    slug: "ghei-chhand-makarand",
-    title: "घेई छंद मकरंद",
-    roman: "Ghei Chhand Makarand",
-    genre: "natyasangeet",
-    poet: "राम गणेश गडकरी",
-    singer: "पं. वसंतराव देशपांडे",
-    youtubeId: null,
-  },
-  {
-    slug: "priye-paha",
-    title: "प्रिये पहा",
-    roman: "Priye Paha",
-    genre: "natyasangeet",
-    poet: "कृ. प्र. खाडिलकर",
-    singer: "छोटा गंधर्व",
-    youtubeId: null,
-  },
-  {
-    slug: "bugadi-mazi-sandali",
-    title: "बुगडी माझी सांडली गं",
-    roman: "Bugadi Mazi Sandali Ga",
-    genre: "lavani",
-    poet: "जगदीश खेबूडकर",
-    singer: "आशा भोसले",
-    composer: "वसंत पवार",
-    youtubeId: null,
-  },
-  {
-    slug: "mi-hay-koli",
-    title: "मी हाय कोळी",
-    roman: "Mi Hay Koli",
-    genre: "koligeet",
-    poet: "पारंपरिक",
-    singer: "शाहीर विठ्ठल उमप",
-    youtubeId: null,
-  },
-  {
-    slug: "vadal-vara-sutala",
-    title: "वादळ वारं सुटलं गो",
-    roman: "Vadal Vara Sutala Go",
-    genre: "koligeet",
-    poet: "पारंपरिक",
-    singer: "कोरस",
-    youtubeId: null,
+    blurb: "पैठणच्या एकनाथांनी भारूड लिहिलं. वरून विनोदी रूपक, आतून अध्यात्म.",
   },
 ];
 
@@ -407,36 +482,69 @@ export const tracks: Track[] = [
 
 export const playlists: Playlist[] = [
   {
-    slug: "pahatecha-abhang",
-    name: "पहाटेचे अभंग",
-    roman: "Pahatecha Abhang",
-    blurb: "काकड आरतीच्या वेळेची शांतता. भीमसेनजींच्या आवाजात दिवस सुरू होतो.",
-    tracks: ["sundar-te-dhyan", "teerth-vitthal", "je-ka-ranjale-ganjale", "pasaydan"],
-  },
-  {
-    slug: "ashadhi-wari",
-    name: "आषाढी वारी",
-    roman: "Ashadhi Wari",
-    blurb: "पंढरपूरच्या वाटेवर टाळ-मृदंगासोबत चालणारी यादी.",
-    tracks: ["vithu-mauli", "teerth-vitthal", "he-vishwachi-maze-ghar", "yamuna-jali"],
-  },
-  {
-    slug: "natyasangeetachi-maifil",
-    name: "नाट्यसंगीताची मैफल",
-    roman: "Natyasangeetachi Maifil",
-    blurb: "पडदा उघडतो, तंबोरा लागतो, आणि रंगमंचावर राग उभा राहतो.",
-    tracks: ["ghei-chhand-makarand", "he-surano-chandra-vha", "priye-paha"],
-  },
-  {
-    slug: "pavsali-bhavgeet",
-    name: "पावसाळी भावगीतं",
-    roman: "Pavsali Bhavgeet",
-    blurb: "खिडकीबाहेर पाऊस आणि आत गदिमांचे शब्द. यापेक्षा जास्त काही नको.",
+    slug: "rup-pahata-lochani-chali",
+    name: "रूप पाहता लोचनी, आठ चाली",
+    roman: "Rup Pahata Lochani, Aath Chali",
+    blurb:
+      "एकच अभंग, आठ गळे. पहाडी, किरवाणी, दरबारी कानडा; शब्द तेच राहतात आणि प्रत्येक वेळी वेगळं काहीतरी ऐकू येतं.",
     tracks: [
-      "ghana-ghana-mala",
-      "radha-hi-bawari",
-      "he-bandh-reshmache",
-      "man-vadhay-vadhay",
+      "rup-pahata-lochani-pahadi",
+      "rup-pahata-lochani-kirwani",
+      "rup-pahata-lochani-punyatithi",
+      "rup-pahata-lochani-mestry",
+      "rup-pahata-lochani-gajbhar",
+      "rup-pahata-lochani-patil",
+      "rup-pahata-lochani-nerulkar",
+      "rup-pahata-lochani-rupavali",
+    ],
+  },
+  {
+    slug: "sundar-te-dhyan-chali",
+    name: "सुंदर ते ध्यान, चार चाली",
+    roman: "Sundar Te Dhyan, Char Chali",
+    blurb: "तुकारामांचा सर्वांत परिचित अभंग, मधुवंतीपासून पारंपरिक चालीपर्यंत.",
+    tracks: [
+      "sundar-te-dhyan-madhuvanti",
+      "sundar-te-dhyan-vasantgadkar",
+      "sundar-te-dhyan-punyatithi",
+      "sundar-te-dhyan-deshmukh",
+    ],
+  },
+  {
+    slug: "vasantgadkaranchi-seva",
+    name: "वसंतगडकरांची सेवा",
+    roman: "Vasantgadkaranchi Seva",
+    blurb:
+      "बाळकृष्ण दादा वसंतगडकर यांची कीर्तनं आणि अभंग, जनार्दन बाबा पुण्यतिथी सोहळ्यातली.",
+    tracks: [
+      "kanhoba-tuzi-ghongadi",
+      "krishna-mazi-mata",
+      "sundar-te-dhyan-madhuvanti",
+      "rup-pahata-lochani-pahadi",
+      "nitya-pathache-bara-abhang",
+    ],
+  },
+  {
+    slug: "pahatecha-namghosh",
+    name: "पहाटेचा नामघोष",
+    roman: "Pahatecha Namghosh",
+    blurb: "दिवस सुरू करायला. एकच ओळ, आणि वाढत जाणारा वेग.",
+    tracks: [
+      "jay-jay-ram-krishna-hari",
+      "jay-jay-ram-krishna-hari-sarang",
+      "panchpadi-bhag-20",
+    ],
+  },
+  {
+    slug: "devichi-stotre",
+    name: "देवीची स्तोत्रं",
+    roman: "Devichi Stotre",
+    blurb: "नवरात्रासाठी, आणि एरवीही.",
+    tracks: [
+      "mahalaxmi-ashtakam",
+      "jagat-janani-ambamata",
+      "ganpati-atharvashirsha",
+      "devi-stotra-sangrah",
     ],
   },
 ];
@@ -452,17 +560,30 @@ export const playlistBySlug = (slug: Slug) => playlists.find((p) => p.slug === s
 
 export const tracksInGenre = (slug: Slug) => tracks.filter((t) => t.genre === slug);
 
-/** Resolves a playlist's track slugs to Track objects, dropping any unknown slug. */
 export const playlistTracks = (p: Playlist) =>
   p.tracks.map(trackBySlug).filter((t): t is Track => Boolean(t));
 
-/** True once a track points at a verified upload and can actually be played. */
 export const isPlayable = (t: Track) => t.youtubeId !== null;
+
+/** Past twenty minutes it is a full session, not a single song. Say so. */
+export const isLongForm = (t: Track) => t.seconds >= 20 * 60;
+
+/** m:ss for the listing. The player formats its own clock. */
+export const trackLength = (t: Track) =>
+  `${Math.floor(t.seconds / 60)}:${String(t.seconds % 60).padStart(2, "0")}`;
+
+/** The line under a track title: who sang it, and in what raga if stated. */
+export const trackCredit = (t: Track) => {
+  const bits = [t.singer ?? t.channel];
+  if (t.raga) bits.push(`राग ${t.raga}`);
+  else if (t.poet) bits.push(t.poet);
+  return bits.join(" · ");
+};
 
 export const site = {
   name: "स्वरधारा",
   roman: "Swardhara",
-  tagline: "मराठी गाण्यांचा अखंड प्रवाह",
+  tagline: "अभंग, कीर्तन आणि भजनाचा संग्रह",
   description:
-    "अभंग, गौळण, भावगीत, भक्तिगीत, नाट्यसंगीत, लावणी आणि कोळीगीत. एकाच ठिकाणी, चोवीस तास वाहणारी मराठी स्वरधारा.",
+    "वारकरी परंपरेतली अभंग, कीर्तनं, भजनं, पंचपदी आणि स्तोत्रं. एकच अभंग अनेक रागांत आणि अनेक गळ्यांतून, सगळं एकाच ठिकाणी.",
 };

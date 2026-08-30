@@ -11,6 +11,9 @@ import {
   poets,
   site,
   tracksInGenre,
+  trackCredit,
+  trackLength,
+  isLongForm,
   type Genre,
 } from "@/lib/content";
 
@@ -52,13 +55,13 @@ function Hero() {
         </p>
 
         <h1 className="mt-4 font-display text-5xl text-ink sm:text-7xl">
-          <RevealWords text="मराठी गाण्यांचा अखंड प्रवाह" />
+          <RevealWords text="एकच अभंग, अनेक चाली" />
         </h1>
 
         <Reveal delay={0.15}>
           <p className="mt-6 max-w-2xl text-lg text-ink-soft">
-            अभंगापासून कोळीगीतापर्यंत, सातशे वर्षांची मराठी गाणी एकाच ठिकाणी.
-            टाळ, पेटी, ढोलकी आणि रंगमंच; सगळं इथे वाहतं.
+            एकच अभंग, अनेक राग आणि अनेक गळे. वारकरी परंपरेतली कीर्तनं, भजनं,
+            पंचपदी आणि स्तोत्रं, एकाच ठिकाणी.
           </p>
         </Reveal>
 
@@ -152,11 +155,20 @@ function Playlists() {
                       </span>
                       <span className="min-w-0">
                         <span className="text-ink">{t.title}</span>
-                        <span className="block text-sm text-ink-faint">
-                          {t.singer} · {t.poet}
+                        {isLongForm(t) && (
+                          <span className="ml-2 align-middle text-xs text-ink-soft">
+                            पूर्ण सत्र
+                          </span>
+                        )}
+                        <span className="block text-sm text-ink-soft">
+                          {trackCredit(t)}
                         </span>
                       </span>
-                      <span className="ml-auto flex shrink-0 items-center">
+
+                      <span className="ml-auto shrink-0 text-sm text-ink-soft tabular-nums">
+                        {trackLength(t)}
+                      </span>
+                      <span className="flex shrink-0 items-center">
                         <PlayButton track={t} queue={list} />
                       </span>
                     </li>
@@ -174,9 +186,9 @@ function Playlists() {
 function Poets() {
   return (
     <section id="kavi" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20 sm:px-8">
-      <h2 className="font-display text-3xl text-ink sm:text-4xl">कवी आणि स्वर</h2>
+      <h2 className="font-display text-3xl text-ink sm:text-4xl">संत कवी</h2>
       <p className="mt-2 text-ink-soft">
-        ज्यांनी हे शब्द लिहिले आणि ज्यांच्या आवाजात ते आपल्यापर्यंत पोहोचले.
+        ज्यांनी हे शब्द लिहिले. सातशे वर्षांनंतरही तेच गायले जातात.
       </p>
 
       <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

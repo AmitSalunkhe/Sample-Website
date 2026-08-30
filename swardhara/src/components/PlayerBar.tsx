@@ -2,6 +2,7 @@
 
 import { usePlayer } from "@/components/PlayerProvider";
 import { formatTime } from "@/lib/youtube";
+import { trackCredit } from "@/lib/content";
 
 /**
  * The bar that sits at the bottom once something is playing.
@@ -56,7 +57,7 @@ export default function PlayerBar() {
             {current.title}
           </p>
           <p className="truncate text-sm text-ink-soft">
-            {failed ? "हे गाणं सध्या वाजवता येत नाही" : `${current.singer} · ${current.poet}`}
+            {failed ? "हे गाणं सध्या वाजवता येत नाही" : trackCredit(current)}
           </p>
 
           <div className="mt-1.5 flex items-center gap-2">
