@@ -58,8 +58,8 @@ traceable. Nothing is guessed.
 - [x] **1. Foundation.** Scaffold, tokens, Devanagari fonts, content model, static home (hero, genres, playlists, poets), a11y baseline.
 - [x] **2. Motion.** Tanpura hero in GLSL/R3F, motes, scroll-velocity tilt on the genre cards. Real-time WebGL, not baked video (see below).
 - [x] **3. Player.** Engine, custom chrome, persistent across routes, queue, and 27 verified tracks.
-- [ ] **4. Routes.** `/prakar/[slug]`, `/yadi/[slug]`, `/kavi/[slug]`.
-- [ ] **5. Polish.** Mobile, full a11y audit, Lighthouse, perf budget, PWA install.
+- [x] **4. Routes.** `/prakar/[slug]`, `/yadi/[slug]`, `/kavi/[slug]`, plus a 404. All static.
+- [x] **5. Polish.** Mobile pass, contrast and touch-target audit, manifest, icon, sitemap, robots.
 
 ### On Blender
 
@@ -68,6 +68,18 @@ machine, and pre-rendered video would cost tens of megabytes for something a
 shader does at 60fps and at any viewport size. If a scene genuinely needs
 modelled geometry later, the path is: author in Blender, export glTF, load
 through R3F. The shader work stays either way.
+
+## Verified
+
+Audited on every route at 375px, with the player open: no text below its WCAG
+AA threshold, no interactive target under 24px, no horizontal scroll. Playback
+survives client-side navigation, checked across two route changes.
+
+Two things could not be checked here. `prefers-reduced-motion` cannot be
+emulated in this browser pane, so that path is code-reviewed rather than run.
+And ResizeObserver does not fire in the pane at all, so R3F never sizes its
+canvas: the hero shader was verified by compiling and rendering it in a
+hand-sized WebGL2 context instead.
 
 ## Before this goes live
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import TanpuraCanvas from "@/components/TanpuraCanvas";
 import VelocityTilt from "@/components/VelocityTilt";
@@ -101,7 +102,10 @@ function Genres() {
             <li key={g.slug}>
               <Reveal delay={i * 0.05}>
                 <VelocityTilt strength={1 + (i % 3) * 0.25}>
-                  <article className="h-full rounded-lg border border-paper-edge bg-paper-deep/60 p-6">
+                  <Link
+                    href={`/prakar/${g.slug}`}
+                    className="block h-full rounded-lg border border-paper-edge bg-paper-deep/60 p-6 transition-colors hover:border-ink"
+                  >
                     <span
                       className={`block h-1 w-10 rounded-full ${accentRule[g.accent]}`}
                       aria-hidden
@@ -113,10 +117,10 @@ function Genres() {
                     <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-soft">
                       {g.blurb}
                     </p>
-                    <p className="mt-5 text-sm text-ink-faint">
-                      {count} {count === 1 ? "गाणं" : "गाणी"}
+                    <p className="mt-5 text-sm text-ink-soft">
+                      {count} {count === 1 ? "रचना" : "रचना"}
                     </p>
-                  </article>
+                  </Link>
                 </VelocityTilt>
               </Reveal>
             </li>
@@ -141,7 +145,11 @@ function Playlists() {
           {playlists.map((p, i) => (
             <Reveal key={p.slug} delay={i * 0.06}>
               <article className="rounded-lg border border-paper-edge bg-paper p-6">
-                <h3 className="font-display text-2xl text-ink">{p.name}</h3>
+                <h3 className="font-display text-2xl text-ink">
+                  <Link href={`/yadi/${p.slug}`} className="transition-colors hover:text-geru-deep">
+                    {p.name}
+                  </Link>
+                </h3>
                 <p className="mt-1 text-[0.95rem] text-ink-soft">{p.blurb}</p>
 
                 <ol className="mt-5 divide-y divide-paper-edge">
@@ -196,7 +204,11 @@ function Poets() {
           <li key={p.slug}>
             <Reveal delay={i * 0.04}>
               <article className="h-full border-t border-ink/15 pt-4">
-                <h3 className="font-display text-xl text-ink">{p.name}</h3>
+                <h3 className="font-display text-xl text-ink">
+                  <Link href={`/kavi/${p.slug}`} className="transition-colors hover:text-geru-deep">
+                    {p.name}
+                  </Link>
+                </h3>
                 <p className="text-sm text-geru-deep">{p.epithet}</p>
                 {p.years && (
                   <p className="mt-1 text-sm text-ink-faint">{p.years}</p>

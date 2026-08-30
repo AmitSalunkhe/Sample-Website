@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Baloo_2, Mukta } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import PlayerProvider from "@/components/PlayerProvider";
@@ -26,12 +26,22 @@ const mukta = Mukta({
 export const metadata: Metadata = {
   title: `${site.name} | ${site.tagline}`,
   description: site.description,
+  metadataBase: new URL("https://swardhara.vercel.app"),
+  applicationName: site.name,
   openGraph: {
     title: `${site.name} · ${site.roman}`,
     description: site.description,
     locale: "mr_IN",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f6efe2",
+  /* No maximum-scale and no user-scalable=no: pinch zoom stays available,
+     which matters more here than a tidy layout. */
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

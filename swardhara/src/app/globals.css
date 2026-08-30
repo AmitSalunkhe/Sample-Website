@@ -141,3 +141,45 @@ h3 {
   background: var(--ink);
   color: var(--paper);
 }
+
+/*
+ * The player scrubber.
+ *
+ * The visible track stays 6px because a fat bar would dominate the footer, but
+ * the control itself is 24px tall so it clears the minimum touch target. That
+ * is why the fill is painted as a background image sized to 6px and centred,
+ * rather than as the element's own background: the two heights are separate.
+ */
+.scrubber {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 1.5rem;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 6px;
+}
+
+.scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--geru-deep);
+  border: 2px solid var(--paper);
+  cursor: pointer;
+}
+
+.scrubber::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  background: var(--geru-deep);
+  cursor: pointer;
+}
+
+.scrubber::-moz-range-track {
+  height: 6px;
+  background: transparent;
+}
