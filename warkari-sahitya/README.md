@@ -1,37 +1,58 @@
-# मराठी वारकरी साहित्य
+# आपले भजन मंडळ
 
-A single-page site: one `index.html`, no build step, no dependencies to install.
-Open the file, or serve the folder:
+One page, one file. No build step, nothing to install.
 
 ```bash
 python -m http.server 8080 --directory warkari-sahitya
 ```
 
-Tailwind comes from the Play CDN and Mukta from Google Fonts, so the page needs
-a network connection the first time it loads.
+Tailwind comes from the Play CDN and Mukta from Google Fonts, so the first load
+needs a network connection.
 
-## What is in it
+## The artwork is the design
 
-- Hero with the Marathi title and a live search box, filtering on title, saint,
-  category and raga
-- Four category cards (अभंग, भजन, गौळण, हरिपाठ) that filter the list; pressing
-  the active card again clears the filter
-- A fixed bottom player: play and pause, previous and next, a seekable
-  progress bar, and a running clock
+The page is the painting. Everything else floats over it as small dark glass
+panels, because the artwork has to be the thing you see.
 
-## The player is simulated
+The site's name is painted into the image, so there is no HTML title over it.
+The `<h1>` is screen-reader only, which keeps the name available to search
+engines and assistive tech without printing it twice.
 
-As the brief asks. A one second timer advances the clock; there is no audio
-element and no file is fetched. Wiring in real audio means replacing `tick()`
-and the transport handlers, and nothing else in the file has to change.
+### Why the image is sized by width, not `cover`
 
-The 27 verified YouTube ids in `../swardhara/src/lib/content.ts` can be dropped
-in whenever real playback is wanted.
+Measured against the real file: the painted title spans the middle 52% of the
+image. `object-fit: cover` keeps only 84% of the width on a 3:2 laptop and 32%
+on a phone, so the title loses its edges on everything narrower than 16:9.
 
-## Colour
+Instead the image is sized to 100% width and pinned to the top, and the page
+continues below it in `#af7b50`, sampled from the artwork's own bottom edge.
+On ultrawide the overflow falls off the bottom, where there is only floor.
 
-The brief's saffron `#FF9933` sits at roughly 2:1 on cream, so it can never
-carry text. It is used for fills, borders and the player button, and a darker
-`#9A4A06` carries the words that need to be saffron. Every piece of text on the
-page was measured against its composited background: nothing falls below WCAG
-AA.
+On portrait the image scales to 188% of the viewport, which leaves 53% of it
+visible: the widest the art can go before the title starts to clip. That makes
+the band `105.8vw` tall, and the nav and panels are positioned against that
+number rather than eyeballed.
+
+## Audio is real
+
+27 tracks, each id checked in a live player. Playback runs through YouTube's
+IFrame API behind our own controls; the site stores no audio and the API script
+is only fetched when someone presses play. Track data comes from
+`../swardhara/src/lib/content.ts`.
+
+## Contrast
+
+Every zone of the artwork was sampled before any UI was placed. The bottom is
+light enough (mean `rgb(187,131,84)`) that white text on it reaches only
+3.2:1, and the top right swings between bright sky and dark tree. That is why
+every floating element carries its own dark glass background instead of sitting
+directly on the painting.
+
+Measured on the rendered page at 375px and 1440px: nothing below its AA
+threshold, no target under 24px, no horizontal scroll.
+
+## Image files
+
+`img/hero-{800,1200,1672}.{avif,webp}`. AVIF at full size is 175 KB, WebP 245
+KB. The original PNG was 2.6 MB and is not in the repo; it lives with the
+designer.

@@ -2,412 +2,539 @@
 <html lang="mr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>मराठी वारकरी साहित्य</title>
-<meta name="description" content="अभंग, भजन, गौळण आणि हरिपाठ. वारकरी परंपरेतलं साहित्य एका ठिकाणी." />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>आपले भजन मंडळ</title>
+<meta name="description" content="अभंग, कीर्तन, भजन आणि स्तोत्रं. गावच्या भजन मंडळाची मैफल, चोवीस तास." />
+<meta name="theme-color" content="#8a5f3a" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+<!-- The artwork is the page, so it is fetched before anything else. -->
+<link rel="preload" as="image" href="img/hero-1200.avif" type="image/avif"
+      imagesrcset="img/hero-800.avif 800w, img/hero-1200.avif 1200w, img/hero-1672.avif 1672w"
+      imagesizes="100vw" />
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          cream: '#FDF6EC',
-          'cream-deep': '#F5E9D7',
-          saffron: '#FF9933',
-          /* The brief's saffron is a fill colour: on cream it lands at about
-             2:1, so it can never carry text. This darker cousin is the one
-             used for words and icons, at 4.7:1. */
-          'saffron-ink': '#9A4A06',
-          ink: '#2B1B10',
-          'ink-soft': '#5C4433',
-        },
-        fontFamily: { sans: ['Mukta', 'system-ui', 'sans-serif'] },
-      },
+  tailwind.config = { theme: { extend: {
+    colors: {
+      /* Sampled from the artwork's own bottom edge, so the page continues the
+         painting rather than sitting next to it. */
+      clay: '#af7b50', 'clay-deep': '#6d452a', 'clay-dark': '#3d2517',
+      saffron: '#FF9933',
     },
-  };
+    fontFamily: { sans: ['Mukta', 'system-ui', 'sans-serif'] },
+  }}};
 </script>
 
 <style>
-  html { scroll-behavior: smooth; }
-  /* Devanagari matras sit above the line and need more room than Latin. */
-  body { line-height: 1.7; }
-  :focus-visible { outline: 2px solid #9A4A06; outline-offset: 3px; border-radius: 4px; }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  :root { --pad: env(safe-area-inset-bottom, 0px); }
+  html, body { height: 100%; }
+  body { line-height: 1.6; overflow: hidden; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 6px; }
+
+  /*
+   * Art direction.
+   *
+   * The title is painted into the artwork, so it must never be cropped.
+   * Measured against the real file: object-fit:cover cuts it on anything
+   * narrower than 16:9, a laptop included. So the image is sized by WIDTH and
+   * pinned to the top, and the page carries on below it in the artwork's own
+   * bottom colour. On ultrawide the overflow falls off the bottom, where there
+   * is only floor.
+   */
+  .art {
+    position: fixed; inset: 0;
+    background-color: #af7b50;
+    background-image: url('img/hero-1672.webp');
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% auto;
   }
-  /* The bar is fixed, so the page needs somewhere for it to sit. */
-  body.player-open { padding-bottom: 7.5rem; }
+  @supports (background-image: image-set(url('x.avif') type('image/avif'))) {
+    .art { background-image: image-set(url('img/hero-1672.avif') type('image/avif')); }
+  }
+  /* Fills the space under the art on tall screens, and darkens the floor so the
+     glass panels have something solid to sit against. */
+  .art::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom,
+      transparent 0%, transparent 58%,
+      rgba(109,69,42,.34) 78%, rgba(61,37,23,.82) 100%);
+  }
+
+  .glass {
+    background: rgba(38, 23, 14, .74);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid rgba(255, 233, 209, .16);
+  }
+
+  /* Scrubber: thin track, 22px hit area. */
+  .scrub { -webkit-appearance: none; appearance: none; height: 24px; background: transparent; width: 100%; }
+  .scrub::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: rgba(255,233,209,.25); }
+  .scrub::-moz-range-track { height: 4px; border-radius: 999px; background: rgba(255,233,209,.25); }
+  .scrub::-webkit-slider-thumb {
+    -webkit-appearance: none; margin-top: -5px; height: 14px; width: 14px;
+    border-radius: 50%; background: #FF9933; border: 2px solid #2a1a10; cursor: pointer;
+  }
+  .scrub::-moz-range-thumb {
+    height: 14px; width: 14px; border-radius: 50%;
+    background: #FF9933; border: 2px solid #2a1a10; cursor: pointer;
+  }
+
+  .sheet { transition: transform .3s cubic-bezier(.16,1,.3,1), opacity .3s; }
+  @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+
+  /*
+   * Portrait.
+   *
+   * The painted title spans the middle 52% of the artwork's width. Scaling the
+   * image to 188% of the viewport leaves 53% of it visible, which is the widest
+   * the art can go before the title starts losing its edges. That makes the
+   * band 105.8vw tall (188 / 1.777), and everything below it is placed against
+   * that number rather than guessed at.
+   */
+  @media (max-aspect-ratio: 13/10) {
+    :root { --band: 105.8vw; }
+    .art { background-size: 188% auto; }
+    .art::after {
+      background: linear-gradient(to bottom,
+        transparent 0%, transparent calc(var(--band) - 5rem),
+        rgba(109,69,42,.45) var(--band), rgba(61,37,23,.9) 100%);
+    }
+    /* Clear of the painted title, and sitting on the artwork's own dark floor.
+       z-index 25 keeps it above the bottom stack, which would otherwise paint
+       over it: the two are only about 40px apart on a short phone. */
+    #topnav {
+      top: calc(var(--band) - 2.9rem); right: 0; left: 0;
+      z-index: 25; justify-content: center;
+    }
+    /* Never let the list push the player off a short screen. */
+    #quick {
+      display: block;
+      max-height: calc(100dvh - var(--band) - 14rem);
+      overflow-y: auto;
+    }
+  }
+  @media (min-aspect-ratio: 13/10) { #quick { display: none; } }
+
+  .no-scrollbar::-webkit-scrollbar { width: 6px; }
+  .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,233,209,.25); border-radius: 999px; }
 </style>
 </head>
 
-<body class="bg-cream text-ink font-sans antialiased">
+<body class="font-sans text-white antialiased">
 
-<a href="#songs" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-ink focus:text-cream focus:px-5 focus:py-3 focus:rounded-full">
-  मुख्य मजकुराकडे जा
-</a>
+<!-- The artwork. Its painted title is the site's name, so the heading below is
+     for screen readers and search engines rather than the eye. -->
+<div class="art" role="img" aria-label="गावच्या देवळासमोर बसलेलं भजन मंडळ: तानपुरा, टाळ आणि मृदंग"></div>
 
-<!-- ─────────────  Hero  ───────────── -->
-<header class="relative overflow-hidden">
-  <!-- Soft saffron wash, decorative only -->
-  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
-    <div class="absolute -top-28 -right-24 h-96 w-96 rounded-full bg-saffron/20 blur-3xl"></div>
-    <div class="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-saffron/10 blur-3xl"></div>
+<h1 class="sr-only">आपले भजन मंडळ</h1>
+
+<!-- ───────── top bar ───────── -->
+<div class="pointer-events-none fixed inset-x-0 top-0 z-20 flex items-start justify-between gap-3 p-3 sm:p-5">
+  <span id="clock" class="pointer-events-auto text-xs font-medium tracking-wide text-white drop-shadow-[0_1px_4px_rgba(0,0,0,.95)] sm:text-sm"></span>
+
+  <span class="pointer-events-auto hidden items-center gap-1.5 text-xs text-white drop-shadow-[0_1px_4px_rgba(0,0,0,.95)] sm:flex">
+    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>चालू आहे
+  </span>
+
+  <span aria-hidden="true"></span>
+
+  <nav id="topnav" aria-label="मुख्य" class="pointer-events-auto fixed right-3 top-3 z-20 flex flex-wrap justify-end gap-1.5 sm:right-5 sm:top-5">
+    <button data-sheet="playlists" class="glass rounded-full px-3 py-1.5 text-xs transition hover:bg-white/10 sm:text-sm">याद्या</button>
+    <button data-sheet="songs" class="glass rounded-full px-3 py-1.5 text-xs transition hover:bg-white/10 sm:text-sm">गाणी</button>
+    <button id="btn-install" hidden class="glass rounded-full px-3 py-1.5 text-xs transition hover:bg-white/10 sm:text-sm">Install</button>
+  </nav>
+</div>
+
+<!-- ───────── floating cards + player ───────── -->
+<div class="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 px-3"
+     style="padding-bottom: calc(0.75rem + var(--pad))">
+
+  <!-- Portrait leaves a warm field under the artwork. Rather than sit empty,
+       it carries the first few tracks so a phone can start playing without
+       opening anything. -->
+  <div id="quick" class="glass pointer-events-auto mb-1 hidden w-full max-w-md rounded-2xl p-2">
+    <p class="px-2 pb-1 text-[11px] uppercase tracking-wide text-white/70">आजची निवड</p>
+    <div id="quick-body"></div>
   </div>
 
-  <div class="relative mx-auto max-w-5xl px-5 pt-16 pb-14 text-center sm:pt-24 sm:pb-20">
-    <p class="mb-4 inline-block rounded-full border border-saffron/40 bg-saffron/10 px-4 py-1 text-sm font-medium text-saffron-ink">
-      ॥ ज्ञानोबा माउली तुकाराम ॥
-    </p>
-
-    <h1 class="text-4xl font-bold leading-tight sm:text-6xl">
-      मराठी वारकरी साहित्य
-    </h1>
-
-    <p class="mx-auto mt-5 max-w-2xl text-lg text-ink-soft">
-      सातशे वर्षांची अभंगवाणी, भजनं, गौळणी आणि हरिपाठ.
-      एका ठिकाणी, कधीही ऐकण्यासाठी.
-    </p>
-
-    <!-- Search -->
-    <div class="mx-auto mt-9 max-w-xl">
-      <label for="search" class="sr-only">गाणं, संत किंवा गायक शोधा</label>
-      <div class="relative">
-        <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
-        </svg>
-        <input
-          id="search" type="search" autocomplete="off"
-          placeholder="गाणं, संत किंवा गायक शोधा…"
-          class="w-full rounded-full border border-cream-deep bg-white py-4 pl-12 pr-4 text-ink shadow-sm placeholder:text-ink-soft/70 focus:border-saffron focus:outline-none focus:ring-2 focus:ring-saffron/40"
-        />
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- ─────────────  Categories  ───────────── -->
-<section class="mx-auto max-w-5xl px-5 pb-4" aria-labelledby="cat-heading">
-  <h2 id="cat-heading" class="sr-only">प्रकार</h2>
-  <div id="categories" class="grid grid-cols-2 gap-4 lg:grid-cols-4"></div>
-</section>
-
-<!-- ─────────────  Songs  ───────────── -->
-<main id="songs" class="mx-auto max-w-5xl px-5 pt-10 pb-24">
-  <div class="mb-5 flex items-baseline justify-between gap-4">
-    <h2 class="text-2xl font-semibold sm:text-3xl">रचना</h2>
-    <p id="count" class="text-sm text-ink-soft" role="status" aria-live="polite"></p>
+  <div id="card-whatsapp" class="glass pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl p-3">
+    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-700 text-base" aria-hidden="true">💬</span>
+    <span class="min-w-0 flex-1">
+      <span class="block truncate text-sm font-semibold">नवीन भजनं आधी मिळवा</span>
+      <span class="block truncate text-xs text-white/75">WhatsApp वर मंडळात या</span>
+    </span>
+    <a href="#" class="shrink-0 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold transition hover:brightness-110">सामील व्हा</a>
+    <button data-close-card="card-whatsapp" aria-label="बंद कर" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/60 hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+    </button>
   </div>
 
-  <ul id="list" class="space-y-2"></ul>
+  <div id="player" class="glass pointer-events-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl p-2.5 sm:gap-3.5 sm:rounded-full sm:py-2.5 sm:pl-3 sm:pr-4"
+       role="region" aria-label="सध्या वाजणारं गाणं">
 
-  <p id="empty" class="hidden rounded-2xl border border-cream-deep bg-white/60 p-10 text-center text-ink-soft">
-    काहीच सापडलं नाही. दुसरा शब्द वापरून बघा.
-  </p>
-</main>
+    <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-saffron/25 text-lg sm:rounded-full" aria-hidden="true">🪷</span>
 
-<footer class="border-t border-cream-deep">
-  <div class="mx-auto max-w-5xl px-5 py-10 text-center text-sm text-ink-soft">
-    <p>॥ जय जय राम कृष्ण हरी ॥</p>
-    <p class="mt-2">मराठी वारकरी साहित्य</p>
-  </div>
-</footer>
+    <span class="min-w-0 flex-1">
+      <span id="p-title" class="block truncate text-sm font-semibold">भजन मंडळ तयार आहे</span>
+      <span id="p-sub" class="block truncate text-xs text-white/70">एक गाणं निवडा</span>
 
-<!-- ─────────────  Player  ───────────── -->
-<div id="player" class="fixed inset-x-0 bottom-0 z-40 hidden border-t border-cream-deep bg-white/95 backdrop-blur"
-     role="region" aria-label="सध्या वाजणारं गाणं">
-  <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5">
-
-    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-saffron/20 text-xl sm:h-14 sm:w-14" aria-hidden="true">🪷</div>
-
-    <div class="min-w-0 flex-1">
-      <p id="p-title" class="truncate font-semibold leading-tight"></p>
-      <p id="p-sub" class="truncate text-sm text-ink-soft"></p>
-
-      <div class="mt-2 flex items-center gap-2">
-        <span id="p-now" class="w-10 shrink-0 text-xs tabular-nums text-ink-soft">0:00</span>
+      <span class="mt-1 flex items-center gap-2">
+        <span id="p-now" class="w-8 shrink-0 text-[11px] tabular-nums text-white/70">0:00</span>
         <label for="p-seek" class="sr-only">गाण्यात पुढे-मागे जा</label>
-        <input id="p-seek" type="range" min="0" max="100" value="0"
-               class="h-6 w-full cursor-pointer appearance-none bg-transparent" />
-        <span id="p-dur" class="w-10 shrink-0 text-right text-xs tabular-nums text-ink-soft">0:00</span>
-      </div>
-    </div>
+        <input id="p-seek" class="scrub cursor-pointer" type="range" min="0" max="100" value="0" />
+        <span id="p-dur" class="w-8 shrink-0 text-right text-[11px] tabular-nums text-white/70">0:00</span>
+      </span>
+    </span>
 
-    <div class="flex shrink-0 items-center gap-1">
-      <button id="p-prev" aria-label="मागचं गाणं" class="hidden h-11 w-11 items-center justify-center rounded-full text-ink-soft hover:text-ink sm:flex">
+    <span class="flex shrink-0 items-center gap-0.5">
+      <button id="p-prev" aria-label="मागचं गाणं" class="hidden h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white sm:grid">
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M16 5v14l-9-7zM6 5h2v14H6z"/></svg>
       </button>
-
-      <button id="p-toggle" aria-label="थांबव" class="flex h-12 w-12 items-center justify-center rounded-full bg-saffron text-white shadow-sm transition hover:brightness-95">
-        <svg id="ic-pause" viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
-        <svg id="ic-play" viewBox="0 0 24 24" class="hidden h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      <button id="p-toggle" aria-label="वाजव" class="grid h-11 w-11 place-items-center rounded-full bg-saffron text-[#2a1a10] transition hover:brightness-105">
+        <svg id="ic-play" viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="ic-pause" viewBox="0 0 24 24" class="hidden h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
       </button>
-
-      <button id="p-next" aria-label="पुढचं गाणं" class="hidden h-11 w-11 items-center justify-center rounded-full text-ink-soft hover:text-ink sm:flex">
+      <button id="p-next" aria-label="पुढचं गाणं" class="hidden h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white sm:grid">
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l9-7zM16 5h2v14h-2z"/></svg>
       </button>
+    </span>
+  </div>
 
-      <button id="p-close" aria-label="बंद कर" class="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft hover:text-ink">
+  <p class="pointer-events-auto pb-1 text-center text-[11px] text-white/70">॥ राम कृष्ण हरी ॥</p>
+</div>
+
+<!-- ───────── sheet ───────── -->
+<div id="sheet" hidden class="fixed inset-0 z-30">
+  <div id="sheet-scrim" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+  <div id="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title"
+       class="sheet glass absolute inset-x-0 bottom-0 mx-auto flex max-h-[84vh] w-full max-w-2xl translate-y-4 flex-col rounded-t-3xl opacity-0 sm:inset-x-auto sm:bottom-6 sm:left-1/2 sm:max-h-[80vh] sm:-translate-x-1/2 sm:rounded-3xl">
+
+    <div class="flex items-center gap-3 border-b border-white/10 p-4">
+      <h2 id="sheet-title" class="flex-1 text-lg font-semibold"></h2>
+      <button id="sheet-close" aria-label="बंद कर" class="grid h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white">
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
       </button>
     </div>
+
+    <div class="border-b border-white/10 px-4 py-3">
+      <label for="search" class="sr-only">शोधा</label>
+      <input id="search" type="search" autocomplete="off" placeholder="गाणं, संत, गायक किंवा राग शोधा…"
+             class="w-full rounded-full border border-white/20 bg-black/40 px-4 py-2.5 text-sm text-white placeholder:text-white/55 focus:border-saffron focus:outline-none" />
+    </div>
+
+    <div id="sheet-body" class="no-scrollbar flex-1 overflow-y-auto overscroll-contain p-3"></div>
   </div>
 </div>
 
-<style>
-  /* Range thumb, styled to match the saffron accent. The track stays thin
-     while the control itself is 24px, so it clears a finger. */
-  #p-seek::-webkit-slider-runnable-track { height: 5px; border-radius: 999px; background: #F5E9D7; }
-  #p-seek::-moz-range-track { height: 5px; border-radius: 999px; background: #F5E9D7; }
-  #p-seek::-webkit-slider-thumb {
-    -webkit-appearance: none; margin-top: -5px;
-    height: 15px; width: 15px; border-radius: 50%;
-    background: #FF9933; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
-  }
-  #p-seek::-moz-range-thumb {
-    height: 15px; width: 15px; border-radius: 50%;
-    background: #FF9933; border: 2px solid #fff; cursor: pointer;
-  }
-</style>
+<!-- YouTube's iframe lives here, off screen. The visible player is ours. -->
+<div aria-hidden="true" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden">
+  <div id="yt-host"></div>
+</div>
 
 <script>
 /* ============================================================
-   Data
+   Data: 27 uploads, each one checked in a live player.
    ============================================================ */
-const CATEGORIES = [
-  { id: 'abhang',   name: 'अभंग',    icon: '🪔', desc: 'विठ्ठलाच्या ओढीची कविता' },
-  { id: 'bhajan',   name: 'भजन',     icon: '🎵', desc: 'नामाचा घोष, पुन्हा पुन्हा' },
-  { id: 'gaulani',  name: 'गौळण',    icon: '🏺', desc: 'मथुरेच्या वाटेवरचा अडवा' },
-  { id: 'haripath', name: 'हरिपाठ',  icon: '📿', desc: 'माउलींचे अठ्ठावीस अभंग' },
-];
+const CATS = { abhang:'अभंग', kirtan:'कीर्तन', bhajan:'भजन',
+               panchpadi:'पंचपदी', stotra:'स्तोत्र', maifil:'मैफल' };
 
-const SONGS = [
-  { t: 'सुंदर ते ध्यान उभे विटेवरी', by: 'संत तुकाराम', cat: 'abhang',   raga: 'मधुवंती', sec: 552 },
-  { t: 'रूप पाहता लोचनी',           by: 'संत तुकाराम', cat: 'abhang',   raga: 'पहाडी',   sec: 406 },
-  { t: 'जे का रंजले गांजले',         by: 'संत तुकाराम', cat: 'abhang',   sec: 385 },
-  { t: 'संपत्ती सोहळा नावडे मनाला',  by: 'संत तुकाराम', cat: 'abhang',   sec: 334 },
-  { t: 'अणुरणिया थोकडा',            by: 'संत तुकाराम', cat: 'abhang',   sec: 298 },
+const SONGS = [{"t":"रूप पाहता लोचनी","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":"पहाडी","cat":"abhang","sec":406,"id":"P5aaMcwNtvM"},{"t":"रूप पाहता लोचनी","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":"किरवाणी आणि दरबारी कानडा","cat":"abhang","sec":436,"id":"CPEerVipX2c"},{"t":"रूप पाहता लोचनी","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":459,"id":"HeoEzp7OcDo"},{"t":"रूप पाहता लोचनी","by":"सुंदर मेस्त्री","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":251,"id":"pxqzfwWFuP8"},{"t":"रूप पाहता लोचनी","by":"उज्वल गजभार","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":810,"id":"5XnYFWhoNO8"},{"t":"रूप पाहता लोचनी","by":"ह.भ.प. पुरुषोत्तम महाराज पाटील","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":541,"id":"mhUELq6SOJc"},{"t":"रूप पाहता लोचनी","by":"रामदास पाटील नेरुळकर","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":555,"id":"pCEUzCaNNyw"},{"t":"रूप पाहता लोचनी","by":"कल्पेश जाधव","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":720,"id":"eZFu49rGwCY"},{"t":"सुंदर ते ध्यान","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":"मधुवंती","cat":"abhang","sec":552,"id":"8x3OZOxq1yU"},{"t":"सुंदर ते ध्यान उभे विटेवरी","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":467,"id":"NyebcYdEuQs"},{"t":"सुंदर ते ध्यान","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":476,"id":"tp5sIkBMywI"},{"t":"सुंदर ते ध्यान उभे विटेवरी","by":"कृष्णा देशमुख","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":601,"id":"btG9zvfrTew"},{"t":"नित्य पाठाचे बारा अभंग","by":"बाळकृष्ण दादा वसंतगडकर","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":1977,"id":"2bkPQSXgcnw"},{"t":"संपत्ती सोहळा नावडे मनाला","by":"Naad Vithalacha","poet":"संत तुकाराम","raga":null,"cat":"abhang","sec":334,"id":"YP9ihYZ9LeA"},{"t":"धन्य धन्य जन्म ज्याचा","by":"बुवा सुशील गोठणकर","poet":null,"raga":null,"cat":"abhang","sec":428,"id":"PEBmKTMGAiQ"},{"t":"पूर्व पुण्य असे जयाचे पदरी","by":"पूजा भुरुक, वैष्णवी मावळे","poet":null,"raga":null,"cat":"abhang","sec":263,"id":"veEhZncx5hM"},{"t":"देह विठ्ठल","by":"अवधूत गांधी","poet":null,"raga":null,"cat":"abhang","sec":286,"id":"fqA8u17jIcU"},{"t":"कान्होबा तुझी घोंगडी","by":"बाळकृष्ण दादा वसंतगडकर","poet":null,"raga":"शिवरंजनी","cat":"kirtan","sec":493,"id":"UXSgXNAJQWo"},{"t":"कृष्ण माझी माता","by":"बाळकृष्ण दादा वसंतगडकर","poet":null,"raga":"पारंपरिक चाल","cat":"kirtan","sec":514,"id":"-XPnZLNd1-Q"},{"t":"जय जय राम कृष्ण हरी","by":"HARMONIUM MELODY Adhyatma","poet":null,"raga":null,"cat":"bhajan","sec":721,"id":"a-vjUwsREvA"},{"t":"जय जय राम कृष्ण हरी","by":"HARMONIUM MELODY Adhyatma","poet":null,"raga":"सारंग","cat":"bhajan","sec":991,"id":"tLdEc5VaxCs"},{"t":"पंचपदी, भाग २०","by":"अरुण कोठावळे","poet":null,"raga":"सांप्रदायिक चाली","cat":"panchpadi","sec":1481,"id":"XAv80aKEyv8"},{"t":"गणपती अथर्वशीर्ष","by":"सूर्यगायत्री","poet":null,"raga":null,"cat":"stotra","sec":402,"id":"qpJ8dFMgtGs"},{"t":"महालक्ष्मी अष्टकम","by":"Bhakti Mantras India","poet":null,"raga":null,"cat":"stotra","sec":590,"id":"zG2qzHSfYi0"},{"t":"जगत जननी तू अंबामाता","by":"तेजस मेस्त्री","poet":null,"raga":null,"cat":"stotra","sec":270,"id":"CK1FdwSGR48"},{"t":"देवी स्तोत्र आणि आरती संग्रह","by":"Bhakti Mantras India","poet":null,"raga":null,"cat":"stotra","sec":3966,"id":"m8QDTCjDrpM"},{"t":"स्मरण लता","by":"अंजली आणि नंदिनी गायकवाड","poet":null,"raga":null,"cat":"maifil","sec":8994,"id":"q3IYYAIxtMY"}];
 
-  { t: 'जय जय राम कृष्ण हरी',        by: 'पारंपरिक',    cat: 'bhajan',   raga: 'सारंग',  sec: 991 },
-  { t: 'विठू माउली तू माउली जगाची',  by: 'पारंपरिक',    cat: 'bhajan',   sec: 421 },
-  { t: 'पंढरीचा वास चंद्रभागे स्नान', by: 'संत तुकाराम', cat: 'bhajan',   sec: 367 },
-  { t: 'माझे माहेर पंढरी',           by: 'संत एकनाथ',   cat: 'bhajan',   sec: 452 },
-
-  { t: 'कान्होबा तुझी घोंगडी',       by: 'पारंपरिक',    cat: 'gaulani',  raga: 'शिवरंजनी', sec: 493 },
-  { t: 'यमुनाजळी खेळू खेळ',          by: 'संत एकनाथ',   cat: 'gaulani',  sec: 344 },
-  { t: 'वारियाने कुंडल हाले',        by: 'संत एकनाथ',   cat: 'gaulani',  sec: 389 },
-  { t: 'मुरली वाजे गोकुळात',         by: 'पारंपरिक',    cat: 'gaulani',  sec: 312 },
-
-  { t: 'देवाचिये द्वारी उभा क्षणभरी', by: 'संत ज्ञानेश्वर', cat: 'haripath', sec: 276 },
-  { t: 'चहूं वेदीं जाण षट्‌शास्त्रीं कारण', by: 'संत ज्ञानेश्वर', cat: 'haripath', sec: 264 },
-  { t: 'त्रिगुण असार निर्गुण हे सार',  by: 'संत ज्ञानेश्वर', cat: 'haripath', sec: 288 },
-  { t: 'हरि मुखें म्हणा हरि मुखें म्हणा', by: 'संत ज्ञानेश्वर', cat: 'haripath', sec: 301 },
+const LISTS = [
+  { name:'रूप पाहता लोचनी, आठ चाली', desc:'एकच अभंग, आठ गळे',
+    match: s => s.t === 'रूप पाहता लोचनी' },
+  { name:'सुंदर ते ध्यान, चार चाली', desc:'तुकारामांचा सर्वांत परिचित अभंग',
+    match: s => s.t.indexOf('सुंदर ते ध्यान') === 0 },
+  { name:'वसंतगडकरांची सेवा', desc:'कीर्तनं आणि अभंग',
+    match: s => (s.by || '').indexOf('वसंतगडकर') >= 0 },
+  { name:'पहाटेचा नामघोष', desc:'दिवस सुरू करायला',
+    match: s => s.cat === 'bhajan' || s.cat === 'panchpadi' },
+  { name:'देवीची स्तोत्रं', desc:'नवरात्रासाठी, आणि एरवीही',
+    match: s => s.cat === 'stotra' },
 ];
 
 /* ============================================================
    Helpers
    ============================================================ */
 const $ = (id) => document.getElementById(id);
-const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-const catName = (id) => (CATEGORIES.find((c) => c.id === id) || {}).name || '';
+const fmt = (s) => (!isFinite(s) || s < 0) ? '0:00'
+  : Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+const credit = (s) => [s.by, s.raga ? 'राग ' + s.raga : s.poet, CATS[s.cat]]
+  .filter(Boolean).join(' · ');
+const isLong = (s) => s.sec >= 1200;
 
-let activeCat = null;   // null = all
-let query = '';
-let visible = [];       // the list as currently filtered; this is the queue
-
-/* ============================================================
-   Categories
-   ============================================================ */
-function renderCategories() {
-  $('categories').innerHTML = CATEGORIES.map((c) => {
-    const n = SONGS.filter((s) => s.cat === c.id).length;
-    const on = activeCat === c.id;
-    return `
-      <button type="button" data-cat="${c.id}" aria-pressed="${on}"
-        class="group rounded-2xl border p-5 text-left transition
-               ${on ? 'border-saffron bg-saffron/15 shadow-sm' : 'border-cream-deep bg-white hover:border-saffron/60 hover:shadow-sm'}">
-        <span class="block text-3xl" aria-hidden="true">${c.icon}</span>
-        <span class="mt-3 block text-xl font-semibold">${c.name}</span>
-        <span class="mt-0.5 block text-sm text-ink-soft">${c.desc}</span>
-        <span class="mt-3 block text-sm font-medium text-saffron-ink">${n} रचना</span>
-      </button>`;
-  }).join('');
-
-  $('categories').querySelectorAll('button').forEach((b) => {
-    b.addEventListener('click', () => {
-      // pressing the active card again clears the filter
-      activeCat = activeCat === b.dataset.cat ? null : b.dataset.cat;
-      renderCategories();
-      renderList();
-    });
-  });
+function tickClock() {
+  $('clock').textContent = new Date()
+    .toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit', hour12:true })
+    .toUpperCase();
 }
+tickClock();
+setInterval(tickClock, 20000);
 
 /* ============================================================
-   Song list
-   ============================================================ */
-function renderList() {
-  const q = query.trim().toLowerCase();
-  visible = SONGS.filter((s) => {
-    const inCat = !activeCat || s.cat === activeCat;
-    const hit = !q || (s.t + ' ' + s.by + ' ' + catName(s.cat) + ' ' + (s.raga || '')).toLowerCase().includes(q);
-    return inCat && hit;
-  });
-
-  $('count').textContent = activeCat || q ? `${visible.length} रचना सापडल्या` : `एकूण ${visible.length} रचना`;
-  $('empty').classList.toggle('hidden', visible.length > 0);
-
-  $('list').innerHTML = visible.map((s) => {
-    const i = SONGS.indexOf(s);
-    const on = current === i;
-    return `
-      <li>
-        <button type="button" data-i="${i}"
-          class="flex w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition
-                 ${on ? 'border-saffron bg-saffron/10' : 'border-transparent bg-white hover:border-cream-deep hover:shadow-sm'}">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-                       ${on ? 'bg-saffron text-white' : 'bg-cream-deep text-saffron-ink'}" aria-hidden="true">
-            ${on && playing
-              ? '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
-              : '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="block truncate font-medium">${s.t}</span>
-            <span class="block truncate text-sm text-ink-soft">
-              ${s.by} · ${catName(s.cat)}${s.raga ? ' · राग ' + s.raga : ''}
-            </span>
-          </span>
-          <span class="shrink-0 text-sm tabular-nums text-ink-soft">${fmt(s.sec)}</span>
-        </button>
-      </li>`;
-  }).join('');
-
-  $('list').querySelectorAll('button').forEach((b) => {
-    b.addEventListener('click', () => {
-      const i = Number(b.dataset.i);
-      if (i === current) togglePlay();
-      else load(i);
-    });
-  });
-}
-
-/* ============================================================
-   Player
+   Player, on YouTube's IFrame API
    ============================================================
-   Simulated, as the brief asks: a timer advances the clock rather than any
-   audio element. Swapping in real audio later means replacing tick() and the
-   transport handlers; nothing else here needs to change.
+   The site stores no audio. Each track points at an upload its channel
+   published, played behind our own controls. The API script is fetched only
+   when someone actually presses play.
    ------------------------------------------------------------ */
-let current = -1;
-let playing = false;
-let pos = 0;
-let timer = null;
+let yt = null, apiPromise = null;
+let queue = [], at = -1, playing = false, poll = null;
 
-function load(i) {
-  current = i;
-  pos = 0;
-  const s = SONGS[i];
+function loadApi() {
+  if (apiPromise) return apiPromise;
+  apiPromise = new Promise(function (resolve, reject) {
+    if (window.YT && window.YT.Player) return resolve();
+    window.onYouTubeIframeAPIReady = resolve;
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.async = true;
+    s.onerror = function () { reject(new Error('IFrame API did not load')); };
+    document.head.appendChild(s);
+    setTimeout(function () { reject(new Error('IFrame API timed out')); }, 12000);
+  });
+  apiPromise.catch(function () { apiPromise = null; });
+  return apiPromise;
+}
 
-  $('player').classList.remove('hidden');
-  document.body.classList.add('player-open');
-  $('p-title').textContent = s.t;
-  $('p-sub').textContent = `${s.by} · ${catName(s.cat)}${s.raga ? ' · राग ' + s.raga : ''}`;
-  $('p-dur').textContent = fmt(s.sec);
-  $('p-seek').max = s.sec;
+function play(song, list) {
+  queue = (list && list.length) ? list : [song];
+  at = queue.indexOf(song);
 
-  start();
-  renderList();
+  $('p-title').textContent = song.t;
+  $('p-sub').textContent = credit(song);
+  $('p-dur').textContent = fmt(song.sec);
+  $('p-seek').max = song.sec;
+  $('p-seek').value = 0;
+  $('p-now').textContent = '0:00';
+  render();
+
+  loadApi().then(function () {
+    if (yt) { yt.loadVideoById(song.id); return; }
+    yt = new YT.Player('yt-host', {
+      videoId: song.id,
+      playerVars: { autoplay: 1, playsinline: 1 },
+      events: {
+        onReady: function (e) { e.target.playVideo(); },
+        onStateChange: function (e) {
+          setPlaying(e.data === 1);
+          if (e.data === 0) step(1);
+        },
+        /* A channel can pull or unlist an upload at any time. Say so rather
+           than leaving a dead bar sitting there. */
+        onError: function () {
+          $('p-sub').textContent = 'हे सध्या वाजवता येत नाही';
+          setPlaying(false);
+        },
+      },
+    });
+  }).catch(function () {
+    $('p-sub').textContent = 'YouTube ला जोडता आलं नाही';
+    setPlaying(false);
+  });
+}
+
+function setPlaying(on) {
+  playing = on;
+  $('ic-play').classList.toggle('hidden', on);
+  $('ic-pause').classList.toggle('hidden', !on);
+  $('p-toggle').setAttribute('aria-label', on ? 'थांबव' : 'वाजव');
+  clearInterval(poll);
+  if (on) poll = setInterval(paint, 500);
+  render();
 }
 
 function paint() {
-  $('p-now').textContent = fmt(pos);
+  if (!yt || !yt.getCurrentTime) return;
+  const pos = yt.getCurrentTime();
+  /* Duration is re-read every tick rather than once: after loadVideoById
+     YouTube reports PLAYING before the new metadata lands, so a single read
+     leaves the scrubber scaled to the previous track. */
+  const dur = yt.getDuration();
+  if (dur > 0) { $('p-seek').max = Math.floor(dur); $('p-dur').textContent = fmt(dur); }
   $('p-seek').value = Math.floor(pos);
-  const pct = (pos / SONGS[current].sec) * 100;
-  // Fill the track up to the thumb, so progress reads at a glance.
-  $('p-seek').style.background =
-    `linear-gradient(to right, #FF9933 ${pct}%, #F5E9D7 ${pct}%) no-repeat center / 100% 5px`;
+  $('p-now').textContent = fmt(pos);
 }
 
-function tick() {
-  pos += 1;
-  if (pos >= SONGS[current].sec) { next(); return; }
-  paint();
-}
-
-function start() {
-  playing = true;
-  clearInterval(timer);
-  timer = setInterval(tick, 1000);
-  $('ic-play').classList.add('hidden');
-  $('ic-pause').classList.remove('hidden');
-  $('p-toggle').setAttribute('aria-label', 'थांबव');
-  paint();
-  renderList();
-}
-
-function pause() {
-  playing = false;
-  clearInterval(timer);
-  $('ic-pause').classList.add('hidden');
-  $('ic-play').classList.remove('hidden');
-  $('p-toggle').setAttribute('aria-label', 'वाजव');
-  renderList();
-}
-
-function togglePlay() { playing ? pause() : start(); }
-
-/* Steps through the list as it is currently filtered, not the master array,
-   so "next" follows what the listener can actually see. */
 function step(by) {
-  if (current < 0) return;
-  const queue = visible.length ? visible : SONGS;
-  const at = queue.indexOf(SONGS[current]);
   const to = at + by;
-  if (to < 0 || to >= queue.length) { pause(); return; }
-  load(SONGS.indexOf(queue[to]));
+  if (to < 0 || to >= queue.length) { if (yt) yt.pauseVideo(); return; }
+  play(queue[to], queue);
 }
-const next = () => step(1);
-const prev = () => step(-1);
+
+$('p-toggle').addEventListener('click', function () {
+  if (!yt) { play(SONGS[0], SONGS); return; }
+  playing ? yt.pauseVideo() : yt.playVideo();
+});
+$('p-next').addEventListener('click', function () { step(1); });
+$('p-prev').addEventListener('click', function () { step(-1); });
+$('p-seek').addEventListener('input', function (e) {
+  const v = Number(e.target.value);
+  $('p-now').textContent = fmt(v);
+  if (yt && yt.seekTo) yt.seekTo(v, true);
+});
 
 /* ============================================================
-   Wiring
+   Sheet
    ============================================================ */
-$('p-toggle').addEventListener('click', togglePlay);
-$('p-next').addEventListener('click', next);
-$('p-prev').addEventListener('click', prev);
-$('p-close').addEventListener('click', () => {
-  pause();
-  current = -1;
-  $('player').classList.add('hidden');
-  document.body.classList.remove('player-open');
-  renderList();
+let mode = 'songs', query = '', lastFocus = null;
+
+function rows(list) {
+  if (!list.length) return '<p class="p-8 text-center text-sm text-white/70">काहीच सापडलं नाही.</p>';
+  return list.map(function (s) {
+    const on = at >= 0 && queue[at] === s;
+    const icon = (on && playing)
+      ? '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
+      : '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    return '<button data-song="' + SONGS.indexOf(s) + '"' +
+      ' class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/10 ' + (on ? 'bg-white/10' : '') + '">' +
+      '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-full ' + (on ? 'bg-saffron text-[#2a1a10]' : 'bg-white/15 text-white') + '">' + icon + '</span>' +
+      '<span class="min-w-0 flex-1">' +
+        '<span class="block truncate text-sm">' + s.t + (isLong(s) ? ' <span class="text-[10px] text-white/70">पूर्ण सत्र</span>' : '') + '</span>' +
+        '<span class="block truncate text-xs text-white/70">' + credit(s) + '</span>' +
+      '</span>' +
+      '<span class="shrink-0 text-xs tabular-nums text-white/70">' + fmt(s.sec) + '</span>' +
+    '</button>';
+  }).join('');
+}
+
+function render() {
+  renderQuick();
+  if ($('sheet').hidden) return;
+  const q = query.trim().toLowerCase();
+  /* Search the same words the row actually shows. The credit line renders a
+     raga as "राग पहाडी", so searching "राग" has to match; matching only the
+     bare raga name meant the one word on screen found nothing. */
+  const hit = function (s) {
+    if (!q) return true;
+    const hay = [s.t, s.by, s.poet, s.raga, s.raga ? 'राग ' + s.raga : '',
+                 CATS[s.cat]].filter(Boolean).join(' ').toLowerCase();
+    return hay.indexOf(q) >= 0;
+  };
+
+  if (mode === 'songs') {
+    $('sheet-title').textContent = 'गाणी';
+    $('sheet-body').innerHTML = rows(SONGS.filter(hit));
+  } else {
+    $('sheet-title').textContent = 'याद्या';
+    const html = LISTS.map(function (L) {
+      const items = SONGS.filter(L.match).filter(hit);
+      if (!items.length) return '';
+      const mins = Math.round(items.reduce(function (a, s) { return a + s.sec; }, 0) / 60);
+      return '<section class="mb-5">' +
+        '<div class="flex items-baseline gap-2 px-3 pb-0.5">' +
+          '<h3 class="text-sm font-semibold">' + L.name + '</h3>' +
+          '<span class="text-xs text-white/70">' + items.length + ' · ' + mins + ' मिनिटं</span>' +
+        '</div>' +
+        '<p class="px-3 pb-2 text-xs text-white/70">' + L.desc + '</p>' +
+        rows(items) + '</section>';
+    }).join('');
+    $('sheet-body').innerHTML = html || '<p class="p-8 text-center text-sm text-white/70">काहीच सापडलं नाही.</p>';
+  }
+
+  const btns = $('sheet-body').querySelectorAll('[data-song]');
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      const s = SONGS[Number(b.dataset.song)];
+      const visible = Array.prototype.map.call(btns, function (x) {
+        return SONGS[Number(x.dataset.song)];
+      });
+      if (queue[at] === s && yt) { playing ? yt.pauseVideo() : yt.playVideo(); }
+      else play(s, visible);
+    });
+  });
+}
+
+/* The quick list shares the sheet's row markup, so a track looks and behaves
+   the same in both places. */
+function renderQuick() {
+  const body = $('quick-body');
+  if (!body) return;
+  /* One per category, in order. SONGS opens with eight readings of the same
+     abhang, so slicing the first four would offer the same song four times. */
+  const seen = {};
+  const picks = SONGS.filter(function (s) {
+    if (seen[s.cat]) return false;
+    seen[s.cat] = 1;
+    return true;
+  }).slice(0, 5);
+  body.innerHTML = rows(picks);
+  body.querySelectorAll('[data-song]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const song = SONGS[Number(b.dataset.song)];
+      if (queue[at] === song && yt) { playing ? yt.pauseVideo() : yt.playVideo(); }
+      else play(song, picks);
+    });
+  });
+}
+
+function openSheet(which) {
+  mode = which;
+  lastFocus = document.activeElement;
+  $('sheet').hidden = false;
+  render();
+  requestAnimationFrame(function () {
+    $('sheet-panel').classList.remove('translate-y-4', 'opacity-0');
+  });
+  $('search').focus();
+}
+
+function closeSheet() {
+  $('sheet-panel').classList.add('translate-y-4', 'opacity-0');
+  setTimeout(function () { $('sheet').hidden = true; }, 200);
+  if (lastFocus) lastFocus.focus();
+}
+
+renderQuick();
+
+document.querySelectorAll('[data-sheet]').forEach(function (b) {
+  b.addEventListener('click', function () { openSheet(b.dataset.sheet); });
 });
-$('p-seek').addEventListener('input', (e) => {
-  pos = Number(e.target.value);
-  paint();
+$('sheet-close').addEventListener('click', closeSheet);
+$('sheet-scrim').addEventListener('click', closeSheet);
+$('search').addEventListener('input', function (e) { query = e.target.value; render(); });
+
+document.addEventListener('keydown', function (e) {
+  if ($('sheet').hidden) return;
+  if (e.key === 'Escape') { closeSheet(); return; }
+  /* Keep focus inside the dialog while it is open. */
+  if (e.key === 'Tab') {
+    const f = $('sheet-panel').querySelectorAll('button, input, [href]');
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
 });
 
-$('search').addEventListener('input', (e) => {
-  query = e.target.value;
-  renderList();
+/* ============================================================
+   Cards and install
+   ============================================================ */
+document.querySelectorAll('[data-close-card]').forEach(function (b) {
+  b.addEventListener('click', function () { $(b.dataset.closeCard).remove(); });
 });
 
-/* Space toggles playback, unless the listener is typing in the search box. */
-document.addEventListener('keydown', (e) => {
-  if (e.code !== 'Space' || current < 0) return;
-  const el = document.activeElement;
-  if (el && (el.tagName === 'INPUT' || el.tagName === 'BUTTON')) return;
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', function (e) {
   e.preventDefault();
-  togglePlay();
+  installEvent = e;
+  $('btn-install').hidden = false;
 });
-
-renderCategories();
-renderList();
+$('btn-install').addEventListener('click', function () {
+  if (!installEvent) return;
+  installEvent.prompt();
+  installEvent.userChoice.then(function () {
+    installEvent = null;
+    $('btn-install').hidden = true;
+  });
+});
 </script>
 </body>
 </html>
