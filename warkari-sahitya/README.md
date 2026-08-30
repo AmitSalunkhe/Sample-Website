@@ -53,6 +53,13 @@ threshold, no target under 24px, no horizontal scroll.
 
 ## Image files
 
-`img/hero-{800,1200,1672}.{avif,webp}`. AVIF at full size is 175 KB, WebP 245
-KB. The original PNG was 2.6 MB and is not in the repo; it lives with the
-designer.
+`img/hero-{800,1200,1672}.{avif,webp}`. One file is fetched per screen, chosen
+by media query and served as AVIF where the browser takes it: 75 KB on a phone,
+175 KB on a desktop. The original PNG was 2.6 MB and is not in the repo.
+
+## Deploying
+
+The repo holds three separate sites, so a Vercel project must be pointed at one
+of them. This page needs **Root Directory `warkari-sahitya`** and no framework
+preset: it is static files. `swardhara.vercel.app` points at `swardhara/` and
+serves the Next.js app, which is why changes here never appear there.

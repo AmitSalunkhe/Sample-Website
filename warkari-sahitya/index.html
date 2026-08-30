@@ -11,10 +11,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-<!-- The artwork is the page, so it is fetched before anything else. -->
-<link rel="preload" as="image" href="img/hero-1200.avif" type="image/avif"
-      imagesrcset="img/hero-800.avif 800w, img/hero-1200.avif 1200w, img/hero-1672.avif 1672w"
-      imagesizes="100vw" />
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -48,13 +44,38 @@
   .art {
     position: fixed; inset: 0;
     background-color: #af7b50;
-    background-image: url('img/hero-1672.webp');
     background-repeat: no-repeat;
     background-position: top center;
     background-size: 100% auto;
   }
-  @supports (background-image: image-set(url('x.avif') type('image/avif'))) {
-    .art { background-image: image-set(url('img/hero-1672.avif') type('image/avif')); }
+
+  /*
+   * One file per screen size, in the best format the browser takes.
+   *
+   * image-set picks AVIF where it is supported and falls back to WebP, and the
+   * media queries pick the width. The breakpoints allow for portrait scaling
+   * the art to 188%, so a 420px phone asks for 790px of image and is given the
+   * 800px file rather than the 1672px one: 75 KB instead of 239 KB.
+   */
+  .art { background-image: image-set(
+    url('img/hero-800.avif') type('image/avif'),
+    url('img/hero-800.webp') type('image/webp')); }
+
+  @media (min-width: 421px) {
+    .art { background-image: image-set(
+      url('img/hero-1200.avif') type('image/avif'),
+      url('img/hero-1200.webp') type('image/webp')); }
+  }
+  @media (min-width: 701px) {
+    .art { background-image: image-set(
+      url('img/hero-1672.avif') type('image/avif'),
+      url('img/hero-1672.webp') type('image/webp')); }
+  }
+
+  /* Safari shipped image-set behind a prefix for years; without this it gets
+     no background at all rather than a smaller one. */
+  @supports not (background-image: image-set(url('x.webp') type('image/webp'))) {
+    .art { background-image: url('img/hero-1672.webp'); }
   }
   /* Fills the space under the art on tall screens, and darkens the floor so the
      glass panels have something solid to sit against. */
