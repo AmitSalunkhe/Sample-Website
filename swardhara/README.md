@@ -55,7 +55,7 @@ well-documented. It is the *links* that are pending, not the facts.
 
 - [x] **1. Foundation.** Scaffold, tokens, Devanagari fonts, content model, static home (hero, genres, playlists, poets), a11y baseline.
 - [x] **2. Motion.** Tanpura hero in GLSL/R3F, motes, scroll-velocity tilt on the genre cards. Real-time WebGL, not baked video (see below).
-- [ ] **3. Player.** YouTube IFrame API, custom chrome, persistent across routes, queue. Verify and fill every `youtubeId`.
+- [~] **3. Player.** Engine, custom chrome, persistent across routes, queue: done. Filling and verifying every `youtubeId` is the remaining half.
 - [ ] **4. Routes.** `/prakar/[slug]`, `/yadi/[slug]`, `/kavi/[slug]`.
 - [ ] **5. Polish.** Mobile, full a11y audit, Lighthouse, perf budget, PWA install.
 

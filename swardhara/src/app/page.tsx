@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import TanpuraCanvas from "@/components/TanpuraCanvas";
 import VelocityTilt from "@/components/VelocityTilt";
+import PlayButton from "@/components/PlayButton";
 import Footer from "@/components/Footer";
 import { Reveal, RevealWords } from "@/components/Reveal";
 import {
@@ -141,10 +142,10 @@ function Playlists() {
                 <p className="mt-1 text-[0.95rem] text-ink-soft">{p.blurb}</p>
 
                 <ol className="mt-5 divide-y divide-paper-edge">
-                  {playlistTracks(p).map((t, n) => (
+                  {playlistTracks(p).map((t, n, list) => (
                     <li
                       key={t.slug}
-                      className="flex items-baseline gap-4 py-2.5 text-[0.95rem]"
+                      className="flex items-center gap-4 py-2.5 text-[0.95rem]"
                     >
                       <span className="w-5 shrink-0 text-right text-ink-faint tabular-nums">
                         {n + 1}
@@ -155,9 +156,8 @@ function Playlists() {
                           {t.singer} · {t.poet}
                         </span>
                       </span>
-                      {/* Honest state: nothing pretends to be playable yet. */}
-                      <span className="ml-auto shrink-0 text-xs text-ink-faint">
-                        लवकरच
+                      <span className="ml-auto flex shrink-0 items-center">
+                        <PlayButton track={t} queue={list} />
                       </span>
                     </li>
                   ))}

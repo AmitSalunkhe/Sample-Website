@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Baloo_2, Mukta } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
+import PlayerProvider from "@/components/PlayerProvider";
+import PlayerBar from "@/components/PlayerBar";
 import { site } from "@/lib/content";
 import "./globals.css";
 
@@ -40,7 +42,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           मुख्य मजकुराकडे जा
         </a>
         <SmoothScroll />
-        {children}
+        {/* The provider wraps everything so the iframe outlives route changes:
+            walking from a playlist to a poet must not restart the song. */}
+        <PlayerProvider>
+          {children}
+          <PlayerBar />
+        </PlayerProvider>
       </body>
     </html>
   );
