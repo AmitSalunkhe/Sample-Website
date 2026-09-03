@@ -117,6 +117,28 @@ within thirty seconds of the end all fall back to a clean start rather than
 throwing. Storage access is wrapped throughout, since it throws outright in a
 private window.
 
+## Icons and motion
+
+Icons are Lucide's, drawn as strokes rather than fills. The player's play/pause
+button holds a single `<path>` that [morphicons](https://morphicons.com) springs
+between the two shapes, loaded as an ES module from jsDelivr and set to
+`reducedMotion: "user"` so the OS setting is honoured. If the CDN is
+unreachable the button still works: the driver stays null and the icon is
+written straight to the element without animating.
+
+Three transitions come from [transitions.dev](https://transitions.dev), used as
+they ship: Panel reveal for the songs sheet, Text states swap for the credit
+line under the track title, which has five different messages to move between,
+and Toast open/close for the floating cards and the player. Each already
+carries its own `prefers-reduced-motion` rule.
+
+**shadcn/ui is deliberately not here.** It is a React library built on Radix,
+distributed as `.tsx` you copy into a project with a build step, and this is one
+static HTML file with no React and no build. Using it would mean rebuilding the
+site as a React app for the sake of four components: a sheet, some pill buttons,
+a slider and a search field. What carries over instead is its visual grammar,
+the focus ring and the pressed state, in `.ring-focus` and `.btn-press`.
+
 ## Contrast
 
 Every zone of the artwork was sampled before any UI was placed. The bottom is

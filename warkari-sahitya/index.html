@@ -129,8 +129,11 @@
     border: 1px solid rgba(255, 233, 209, .16);
   }
 
-  /* Scrubber: thin track, 22px hit area. */
-  .scrub { -webkit-appearance: none; appearance: none; height: 24px; background: transparent; width: 100%; }
+  /* Scrubber: a thin visible track inside a target that clears 24px.
+     26px, not 24: the toast transition scales the player to 0.97 as it opens,
+     and a control sitting exactly on the minimum renders at 23.3px while that
+     is on screen. The extra two pixels keep it above the line throughout. */
+  .scrub { -webkit-appearance: none; appearance: none; height: 26px; background: transparent; width: 100%; }
   .scrub::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: rgba(255,233,209,.25); }
   .scrub::-moz-range-track { height: 4px; border-radius: 999px; background: rgba(255,233,209,.25); }
   .scrub::-webkit-slider-thumb {
@@ -142,8 +145,116 @@
     background: #FF9933; border: 2px solid #2a1a10; cursor: pointer;
   }
 
-  .sheet { transition: transform .3s cubic-bezier(.16,1,.3,1), opacity .3s; }
-  @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+  /* ============================================================
+     Transitions, taken from transitions.dev
+     ============================================================
+     Three of theirs, unmodified apart from the variables tuned to this
+     page's sizes. Each already honours prefers-reduced-motion, which is
+     why they are used as they come rather than rewritten. */
+
+  :root {
+    --panel-open-dur: 400ms;
+    --panel-close-dur: 350ms;
+    --panel-translate-y: 40px;
+    --panel-blur: 2px;
+    --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --text-swap-dur: 150ms;
+    --text-swap-translate-y: 4px;
+    --text-swap-blur: 2px;
+    --text-swap-ease: ease-in-out;
+
+    --toast-open: 350ms;
+    --toast-close: 250ms;
+    --toast-distance: 16px;
+    --toast-blur: 2px;
+    --toast-scale: 0.97;
+    --toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Panel reveal: the songs and playlists sheet. */
+  .t-panel-slide {
+    transform: translateY(var(--panel-translate-y));
+    opacity: 0;
+    filter: blur(var(--panel-blur));
+    pointer-events: none;
+    transition:
+      transform var(--panel-close-dur) var(--panel-ease),
+      opacity   var(--panel-close-dur) var(--panel-ease),
+      filter    var(--panel-close-dur) var(--panel-ease);
+    will-change: transform, opacity, filter;
+  }
+  .t-panel-slide[data-open="true"] {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+    pointer-events: auto;
+    transition:
+      transform var(--panel-open-dur) var(--panel-ease),
+      opacity   var(--panel-open-dur) var(--panel-ease),
+      filter    var(--panel-open-dur) var(--panel-ease);
+  }
+
+  /* Text states swap: the credit line under the track title, which has to
+     change between five different messages without simply blinking. */
+  .t-text-swap {
+    display: inline-block;
+    transform: translateY(0);
+    filter: blur(0);
+    opacity: 1;
+    transition:
+      transform var(--text-swap-dur) var(--text-swap-ease),
+      filter    var(--text-swap-dur) var(--text-swap-ease),
+      opacity   var(--text-swap-dur) var(--text-swap-ease);
+    will-change: transform, filter, opacity;
+  }
+  .t-text-swap.is-exit {
+    transform: translateY(calc(var(--text-swap-translate-y) * -1));
+    filter: blur(var(--text-swap-blur));
+    opacity: 0;
+  }
+  .t-text-swap.is-enter-start {
+    transform: translateY(var(--text-swap-translate-y));
+    filter: blur(var(--text-swap-blur));
+    opacity: 0;
+    transition: none;
+  }
+
+  /* Toast open/close: the floating cards and the player. */
+  .t-toast {
+    opacity: 0;
+    transform: translateY(var(--toast-distance)) scale(var(--toast-scale));
+    filter: blur(var(--toast-blur));
+    will-change: transform, opacity, filter;
+    transition:
+      opacity var(--toast-close) var(--toast-ease),
+      transform var(--toast-close) var(--toast-ease),
+      filter var(--toast-close) var(--toast-ease);
+  }
+  .t-toast.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    transition:
+      opacity var(--toast-open) var(--toast-ease),
+      transform var(--toast-open) var(--toast-ease),
+      filter var(--toast-open) var(--toast-ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .t-panel-slide, .t-text-swap, .t-toast { transition: none !important; }
+  }
+
+  /* shadcn's look without shadcn: it is a React library and this page has no
+     React. What carries over is the visual grammar its components share, a
+     ring on focus rather than a bare outline, and a pressed state that dips
+     the control slightly. */
+  .btn-press { transition: transform 120ms var(--panel-ease), filter 120ms var(--panel-ease); }
+  .btn-press:active { transform: scale(0.96); }
+  .ring-focus:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(38,23,14,.9), 0 0 0 4px rgba(255,255,255,.85);
+  }
 
   .no-scrollbar::-webkit-scrollbar { width: 6px; }
   .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,233,209,.25); border-radius: 999px; }
@@ -179,7 +290,7 @@
 <div class="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 px-3"
      style="padding-bottom: calc(0.75rem + var(--pad))">
 
-  <div id="card-whatsapp" class="glass pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl p-3">
+  <div id="card-whatsapp" class="t-toast glass pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl p-3">
     <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-700 text-base" aria-hidden="true">💬</span>
     <span class="min-w-0 flex-1">
       <span class="block truncate text-sm font-semibold">नवीन भजनं आधी मिळवा</span>
@@ -187,18 +298,18 @@
     </span>
     <a href="#" class="shrink-0 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold transition hover:brightness-110">सामील व्हा</a>
     <button data-close-card="card-whatsapp" aria-label="बंद कर" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/60 hover:text-white">
-      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
     </button>
   </div>
 
-  <div id="player" class="glass pointer-events-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl p-2.5 sm:gap-3.5 sm:rounded-full sm:py-2.5 sm:pl-3 sm:pr-4"
+  <div id="player" class="t-toast glass pointer-events-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl p-2.5 sm:gap-3.5 sm:rounded-full sm:py-2.5 sm:pl-3 sm:pr-4"
        role="region" aria-label="सध्या वाजणारं गाणं">
 
     <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-saffron/25 text-lg sm:rounded-full" aria-hidden="true">🪷</span>
 
     <span class="min-w-0 flex-1">
       <span id="p-title" class="block truncate text-sm font-semibold">भजन मंडळ तयार आहे</span>
-      <span id="p-sub" class="block truncate text-xs text-white/70">एक गाणं निवडा</span>
+      <span class="block truncate text-xs text-white/70"><span id="p-sub" class="t-text-swap">एक गाणं निवडा</span></span>
 
       <span class="mt-1 flex items-center gap-2">
         <span id="p-now" class="w-8 shrink-0 text-[11px] tabular-nums text-white/70">0:00</span>
@@ -210,14 +321,20 @@
 
     <span class="flex shrink-0 items-center gap-0.5">
       <button id="p-prev" aria-label="मागचं गाणं" class="hidden h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white sm:grid">
-        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M16 5v14l-9-7zM6 5h2v14H6z"/></svg>
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z"/><path d="M3 20V4"/></svg>
       </button>
-      <button id="p-toggle" aria-label="वाजव" class="grid h-11 w-11 place-items-center rounded-full bg-saffron text-[#2a1a10] transition hover:brightness-105">
-        <svg id="ic-play" viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        <svg id="ic-pause" viewBox="0 0 24 24" class="hidden h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+      <button id="p-toggle" aria-label="वाजव"
+              class="btn-press ring-focus grid h-11 w-11 place-items-center rounded-full bg-saffron text-[#2a1a10] hover:brightness-105">
+        <!-- One path, morphed between play and pause by morphicons. The icons
+             are Lucide's, drawn as strokes rather than fills, because morphing
+             is defined on stroke geometry. -->
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path id="ic-toggle" d="" />
+        </svg>
       </button>
       <button id="p-next" aria-label="पुढचं गाणं" class="hidden h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white sm:grid">
-        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M8 5v14l9-7zM16 5h2v14h-2z"/></svg>
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4v16"/><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/></svg>
       </button>
     </span>
   </div>
@@ -248,12 +365,15 @@
   <div id="sheet-scrim" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
   <div id="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title"
-       class="sheet glass absolute inset-x-0 bottom-0 mx-auto flex max-h-[84vh] w-full max-w-2xl translate-y-4 flex-col rounded-t-3xl opacity-0 sm:inset-x-auto sm:bottom-6 sm:left-1/2 sm:max-h-[80vh] sm:-translate-x-1/2 sm:rounded-3xl">
+       /* Centred with mx-auto rather than left-1/2 and a negative translate:
+           the panel transition writes `transform` itself, and the two would
+           fight, sliding the sheet half its width off centre. */
+       class="t-panel-slide glass absolute inset-x-0 bottom-0 mx-auto flex max-h-[84vh] w-full max-w-2xl flex-col rounded-t-3xl sm:bottom-6 sm:max-h-[80vh] sm:rounded-3xl">
 
     <div class="flex items-center gap-3 border-b border-white/10 p-4">
       <h2 id="sheet-title" class="flex-1 text-lg font-semibold"></h2>
       <button id="sheet-close" aria-label="बंद कर" class="grid h-10 w-10 place-items-center rounded-full text-white/75 hover:text-white">
-        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
     </div>
 
@@ -296,6 +416,38 @@ const LISTS = [
   { name:'देवीची स्तोत्रं', desc:'नवरात्रासाठी, आणि एरवीही',
     match: s => s.cat === 'stotra' },
 ];
+
+/* ============================================================
+   Icons
+   ============================================================
+   Lucide's play and pause as stroke geometry. morphicons animates between
+   the two `d` strings with spring physics, which is why the button holds a
+   single path rather than two SVGs swapped by a class. */
+const ICON = {
+  play:  'M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z',
+  pause: 'M15 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM6 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z',
+};
+
+/* The morph driver, loaded lazily as an ES module. If the CDN is unreachable
+   the button still works: `morph` stays null and the fallback below writes the
+   path straight to the element, so the icon changes without animating. */
+let morph = null;
+
+import('https://cdn.jsdelivr.net/npm/morphicons@1.7.1/dist/dom.js')
+  .then(function (m) {
+    const el = document.getElementById('ic-toggle');
+    if (!el) return;
+    morph = m.createMorph(el, ICON.play, { reducedMotion: 'user' });
+  })
+  .catch(function () { /* no morphing; setIcon falls back to a plain write */ });
+
+function setIcon(d, animate) {
+  const el = document.getElementById('ic-toggle');
+  if (!el) return;
+  if (!morph) { el.setAttribute('d', d); return; }
+  if (animate) morph.morphTo(d, 'snappy');
+  else morph.set(d);
+}
 
 /* ============================================================
    Helpers
@@ -406,15 +558,33 @@ function loadApi() {
      offline     YouTube could not be reached */
 let subMode = 'credit';
 
-function paintSub() {
+function subText() {
   const song = queue[at] || (pending && pending.song);
-  if (!song) return;
+  if (!song) return '';
+  if (subMode === 'failed') return 'हे सध्या वाजवता येत नाही';
+  if (subMode === 'offline') return 'YouTube ला जोडता आलं नाही';
+  if (subMode === 'interrupted') return 'थांबलं होतं · ' + fmt(lastPos) + ' पासून पुढे';
+  if (subMode === 'resume') return credit(song) + ' · ' + fmt(lastPos) + ' पासून';
+  return credit(song);
+}
+
+/* The three-phase swap transitions.dev describes: the old line leaves upward
+   with a blur, the text is replaced while it sits below, then it rises back.
+   Only run when the words actually change, or a clock tick would blur the line
+   twice a second. */
+function paintSub() {
   const el = $('p-sub');
-  if (subMode === 'failed') el.textContent = 'हे सध्या वाजवता येत नाही';
-  else if (subMode === 'offline') el.textContent = 'YouTube ला जोडता आलं नाही';
-  else if (subMode === 'interrupted') el.textContent = 'थांबलं होतं · ' + fmt(lastPos) + ' पासून पुढे';
-  else if (subMode === 'resume') el.textContent = credit(song) + ' · ' + fmt(lastPos) + ' पासून';
-  else el.textContent = credit(song);
+  const next = subText();
+  if (!next || el.textContent === next) return;
+
+  el.classList.add('is-exit');
+  setTimeout(function () {
+    el.textContent = next;
+    el.classList.remove('is-exit');
+    el.classList.add('is-enter-start');
+    void el.offsetWidth;            // reflow, so the class below animates
+    el.classList.remove('is-enter-start');
+  }, 150);
 }
 
 function play(song, list, startAt) {
@@ -462,13 +632,13 @@ function play(song, list, startAt) {
 }
 
 function setPlaying(on) {
+  const changed = playing !== on;
   playing = on;
+  setIcon(on ? ICON.pause : ICON.play, changed);
   if (on && (subMode === 'interrupted' || subMode === 'resume')) {
     subMode = 'credit';
     paintSub();
   }
-  $('ic-play').classList.toggle('hidden', on);
-  $('ic-pause').classList.toggle('hidden', !on);
   $('p-toggle').setAttribute('aria-label', on ? 'थांबव' : 'वाजव');
   clearInterval(poll);
   clearInterval(saver);
@@ -589,6 +759,19 @@ function restore() {
   $('p-now').textContent = fmt(saved.pos);
 }
 
+/* One frame from now, whatever "now" is.
+ *
+ * requestAnimationFrame does not run at all while a document is hidden, and a
+ * page opened in a background tab is hidden from the start. Anything that
+ * waited only on a frame would sit in its closed state indefinitely, so the
+ * timer is the floor: whichever arrives first wins, and the callback runs once. */
+function nextFrame(fn) {
+  let done = false;
+  const once = function () { if (!done) { done = true; fn(); } };
+  requestAnimationFrame(function () { requestAnimationFrame(once); });
+  setTimeout(once, 60);
+}
+
 /* ============================================================
    Sheet
    ============================================================ */
@@ -599,8 +782,8 @@ function rows(list) {
   return list.map(function (s) {
     const on = at >= 0 && queue[at] === s;
     const icon = (on && playing)
-      ? '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
-      : '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      ? '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + ICON.pause + '"/></svg>'
+      : '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + ICON.play + '"/></svg>';
     return '<button data-song="' + SONGS.indexOf(s) + '"' +
       ' class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/10 ' + (on ? 'bg-white/10' : '') + '">' +
       '<span class="grid h-9 w-9 shrink-0 place-items-center rounded-full ' + (on ? 'bg-saffron text-[#2a1a10]' : 'bg-white/15 text-white') + '">' + icon + '</span>' +
@@ -664,15 +847,13 @@ function openSheet(which) {
   lastFocus = document.activeElement;
   $('sheet').hidden = false;
   render();
-  requestAnimationFrame(function () {
-    $('sheet-panel').classList.remove('translate-y-4', 'opacity-0');
-  });
+  nextFrame(function () { $('sheet-panel').dataset.open = 'true'; });
   $('search').focus();
 }
 
 function closeSheet() {
-  $('sheet-panel').classList.add('translate-y-4', 'opacity-0');
-  setTimeout(function () { $('sheet').hidden = true; }, 200);
+  $('sheet-panel').dataset.open = 'false';
+  setTimeout(function () { $('sheet').hidden = true; }, 350);
   if (lastFocus) lastFocus.focus();
 }
 
@@ -721,6 +902,14 @@ document.addEventListener('keydown', function (e) {
 /* ============================================================
    Cards and install
    ============================================================ */
+
+/* The floating panels rise in once the page has drawn them closed, so the
+   class change reads as a transition rather than as their initial style. */
+nextFrame(function () {
+  document.querySelectorAll('.t-toast').forEach(function (el) {
+    el.classList.add('is-open');
+  });
+});
 document.querySelectorAll('[data-close-card]').forEach(function (b) {
   b.addEventListener('click', function () { $(b.dataset.closeCard).remove(); });
 });
