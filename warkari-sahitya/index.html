@@ -379,6 +379,26 @@ function loadApi() {
   return apiPromise;
 }
 
+/* The line under the title has four different things to say and they must not
+   fight each other, so one function owns it.
+     credit      the singer, raga and category
+     resume      a saved position waiting to be picked up
+     interrupted playback stopped because the app went to the background
+     failed      this upload will not play
+     offline     YouTube could not be reached */
+let subMode = 'credit';
+
+function paintSub() {
+  const song = queue[at] || (pending && pending.song);
+  if (!song) return;
+  const el = $('p-sub');
+  if (subMode === 'failed') el.textContent = 'हे सध्या वाजवता येत नाही';
+  else if (subMode === 'offline') el.textContent = 'YouTube ला जोडता आलं नाही';
+  else if (subMode === 'interrupted') el.textContent = 'थांबलं होतं · ' + fmt(lastPos) + ' पासून पुढे';
+  else if (subMode === 'resume') el.textContent = credit(song) + ' · ' + fmt(lastPos) + ' पासून';
+  else el.textContent = credit(song);
+}
+
 function play(song, list, startAt) {
   const from = Math.max(0, Math.floor(startAt || 0));
   pending = null;
@@ -387,7 +407,8 @@ function play(song, list, startAt) {
   lastPos = from;
 
   $('p-title').textContent = song.t;
-  $('p-sub').textContent = credit(song);
+  subMode = 'credit';
+  paintSub();
   $('p-dur').textContent = fmt(song.sec);
   $('p-seek').max = song.sec;
   $('p-seek').value = from;
@@ -409,19 +430,25 @@ function play(song, list, startAt) {
         /* A channel can pull or unlist an upload at any time. Say so rather
            than leaving a dead bar sitting there. */
         onError: function () {
-          $('p-sub').textContent = 'हे सध्या वाजवता येत नाही';
+          subMode = 'failed';
+          paintSub();
           setPlaying(false);
         },
       },
     });
   }).catch(function () {
-    $('p-sub').textContent = 'YouTube ला जोडता आलं नाही';
+    subMode = 'offline';
+    paintSub();
     setPlaying(false);
   });
 }
 
 function setPlaying(on) {
   playing = on;
+  if (on && (subMode === 'interrupted' || subMode === 'resume')) {
+    subMode = 'credit';
+    paintSub();
+  }
   $('ic-play').classList.toggle('hidden', on);
   $('ic-pause').classList.toggle('hidden', !on);
   $('p-toggle').setAttribute('aria-label', on ? 'थांबव' : 'वाजव');
@@ -462,7 +489,16 @@ $('p-toggle').addEventListener('click', function () {
      for, so the saved position can finally be resumed. */
   if (!yt && pending) { play(pending.song, pending.list, pending.pos); return; }
   if (!yt) { play(SONGS[0], SONGS); return; }
-  playing ? yt.pauseVideo() : yt.playVideo();
+
+  if (playing) { yt.pauseVideo(); return; }
+
+  /* Coming back from the background, YouTube has often rewound the player to
+     zero. Seek before playing, otherwise "3:20 पासून पुढे" would be a promise
+     the button quietly breaks. */
+  if (subMode === 'interrupted' && lastPos > 0 && yt.seekTo) {
+    yt.seekTo(lastPos, true);
+  }
+  yt.playVideo();
 });
 $('p-next').addEventListener('click', function () { step(1); });
 $('p-prev').addEventListener('click', function () { step(-1); });
@@ -479,8 +515,35 @@ $('p-seek').addEventListener('input', function (e) {
    visibilitychange covers a phone being switched away from, which on iOS is
    often the only event that arrives before the tab is frozen. */
 window.addEventListener('pagehide', saveState);
+
+/* Backgrounding.
+ *
+ * YouTube stops an embedded player the moment its tab leaves the foreground,
+ * and its developer policies rule out playing from a background player, so
+ * this is the platform working as intended rather than a fault here. What we
+ * can do is not leave a silently dead bar behind: note that it was playing,
+ * and on the way back say so along with the second it stopped at.
+ *
+ * The check is delayed a moment because a tab returning to the foreground
+ * sometimes reports paused for an instant before resuming on its own, and
+ * announcing an interruption that did not happen would be worse than saying
+ * nothing. */
+let wasPlayingWhenHidden = false;
+
 document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'hidden') saveState();
+  if (document.visibilityState === 'hidden') {
+    wasPlayingWhenHidden = playing;
+    saveState();
+    return;
+  }
+  if (!wasPlayingWhenHidden) return;
+  setTimeout(function () {
+    if (!playing && queue[at]) {
+      subMode = 'interrupted';
+      paintSub();
+    }
+    wasPlayingWhenHidden = false;
+  }, 700);
 });
 
 /* Restore the last position.

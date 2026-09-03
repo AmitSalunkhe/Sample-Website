@@ -79,6 +79,25 @@ tracks stay hand-named. To rename a new one, add its id there.
 notation videos: they teach a tune rather than perform one. The script drops
 private, deleted and non-embeddable videos on its own.
 
+## Why it stops when you leave the app
+
+YouTube stops an embedded player as soon as its tab leaves the foreground, and
+its developer policies rule out playing "from a background player, meaning a
+player that is not displayed in the page, tab, or screen that the user is
+viewing", as well as separating the audio from the video. So background
+playback is not available here, and no amount of client code changes that. It
+would need audio we host ourselves, which needs the rights to those recordings.
+
+What the page does instead is not pretend nothing happened. It notes that a
+track was playing when the app went away, and on the way back says
+"थांबलं होतं · 3:20 पासून पुढे". Pressing play seeks to that second first,
+because YouTube usually rewinds a paused player to zero and the line would
+otherwise be a promise the button quietly breaks.
+
+The check is delayed 700ms: a tab returning to the foreground can report paused
+for an instant before resuming on its own, and announcing an interruption that
+did not happen is worse than saying nothing.
+
 ## It remembers where you were
 
 A forty minute kirtan is not something you finish in one sitting, so the track
