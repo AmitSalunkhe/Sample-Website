@@ -149,6 +149,29 @@ site as a React app for the sake of four components: a sheet, some pill buttons,
 a slider and a search field. What carries over instead is its visual grammar,
 the focus ring and the pressed state, in `.ring-focus` and `.btn-press`.
 
+## The progress bar
+
+Built the way Android's is: an inactive track, an active track filling behind
+what has played, a thumb, and Material's stop indicator dot at the end. A bare
+range input cannot show the played portion at all, so the input is still there,
+stretched invisibly over the top doing the keyboard, pointer and screen-reader
+work while four elements underneath do the drawing.
+
+The position is polled twice a second, which on its own would step visibly. The
+fill advances by `scaleX` and the thumb by `translateX`, both transitioned
+linear over the same 500ms, so each update interpolates into the next and the
+bar travels continuously. Seeks and track changes set `.is-scrubbing` first,
+which drops the transition so the bar lands instantly rather than appearing to
+lag the finger.
+
+Percentage `translateX` resolves against the element's own width, which is the
+full track, so the thumb never needs the track measured. Both properties are
+compositor-only.
+
+The travel is kept under `prefers-reduced-motion`. A progress indicator's
+movement is the information it carries, not decoration, and stepping twice a
+second would read as a fault.
+
 ## Contrast
 
 Every zone of the artwork was sampled before any UI was placed. The bottom is
