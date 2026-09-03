@@ -126,8 +126,18 @@ between the two shapes, loaded as an ES module from jsDelivr and set to
 unreachable the button still works: the driver stays null and the icon is
 written straight to the element without animating.
 
-Three transitions come from [transitions.dev](https://transitions.dev), used as
-they ship: Panel reveal for the songs sheet, Text states swap for the credit
+Three transitions come from [transitions.dev](https://transitions.dev), then
+audited against [emilkowalski/skills](https://github.com/emilkowalski/skills)
+(review-animations) and [ibelick/ui-skills](https://github.com/ibelick/ui-skills)
+(fixing-motion-performance). Four things changed: the cross-blur is gone from
+the sheet and the floating cards, since both are large surfaces that already
+carry a `backdrop-filter` and animating `filter` on top re-rasterises the
+blurred backdrop every frame; the permanent `will-change` hints are gone,
+because those elements live on screen for the whole session and browsers
+promote on their own when a transform transition starts; the sheet is 300/250ms
+rather than 400/350; and press feedback reaches every pressable rather than
+only the play button. Blur is kept on the one place it belongs, a few words of
+text with nothing blurred beneath them. The transitions used are: Panel reveal for the songs sheet, Text states swap for the credit
 line under the track title, which has five different messages to move between,
 and Toast open/close for the floating cards and the player. Each already
 carries its own `prefers-reduced-motion` rule.

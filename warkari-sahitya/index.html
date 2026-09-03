@@ -148,13 +148,17 @@
   /* ============================================================
      Transitions, taken from transitions.dev
      ============================================================
-     Three of theirs, unmodified apart from the variables tuned to this
-     page's sizes. Each already honours prefers-reduced-motion, which is
-     why they are used as they come rather than rewritten. */
+     Three of theirs, then audited against emilkowalski/skills
+     (review-animations) and ibelick/ui-skills (fixing-motion-performance).
+     Four things changed as a result, each noted where it applies. Their
+     prefers-reduced-motion rules are kept as they ship. */
 
   :root {
-    --panel-open-dur: 400ms;
-    --panel-close-dur: 350ms;
+    /* Emil's table puts drawers at 200-500ms but the general rule at under
+       300ms. 400 read sluggish on a sheet this size; 300/250 is still a
+       drawer and answers the tap noticeably faster. */
+    --panel-open-dur: 300ms;
+    --panel-close-dur: 250ms;
     --panel-translate-y: 40px;
     --panel-blur: 2px;
     --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -172,27 +176,26 @@
     --toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Panel reveal: the songs and playlists sheet. */
+  /* Panel reveal: the songs and playlists sheet.
+     The cross-blur is dropped here. "Never animate blur on large surfaces",
+     and this panel is up to 84vh tall and already carries a backdrop-filter,
+     so animating filter on top of it re-rasterises the blurred backdrop every
+     frame. Translate and opacity carry the same read. */
   .t-panel-slide {
     transform: translateY(var(--panel-translate-y));
     opacity: 0;
-    filter: blur(var(--panel-blur));
     pointer-events: none;
     transition:
       transform var(--panel-close-dur) var(--panel-ease),
-      opacity   var(--panel-close-dur) var(--panel-ease),
-      filter    var(--panel-close-dur) var(--panel-ease);
-    will-change: transform, opacity, filter;
+      opacity   var(--panel-close-dur) var(--panel-ease);
   }
   .t-panel-slide[data-open="true"] {
     transform: translateY(0);
     opacity: 1;
-    filter: blur(0);
     pointer-events: auto;
     transition:
       transform var(--panel-open-dur) var(--panel-ease),
-      opacity   var(--panel-open-dur) var(--panel-ease),
-      filter    var(--panel-open-dur) var(--panel-ease);
+      opacity   var(--panel-open-dur) var(--panel-ease);
   }
 
   /* Text states swap: the credit line under the track title, which has to
@@ -206,7 +209,8 @@
       transform var(--text-swap-dur) var(--text-swap-ease),
       filter    var(--text-swap-dur) var(--text-swap-ease),
       opacity   var(--text-swap-dur) var(--text-swap-ease);
-    will-change: transform, filter, opacity;
+    /* Blur kept here and only here: a few words, no backdrop-filter beneath
+       them, and a 150ms one-shot. That is the case the guidance allows. */
   }
   .t-text-swap.is-exit {
     transform: translateY(calc(var(--text-swap-translate-y) * -1));
@@ -221,24 +225,24 @@
   }
 
   /* Toast open/close: the floating cards and the player. */
+  /* Toast open/close: the floating cards and the player.
+     Blur dropped for the same reason as the panel, and will-change with it:
+     these two are on screen for the whole session, so a permanent hint would
+     hold promoted layers alive forever for a transition that runs once.
+     Browsers promote on their own when a transform transition starts. */
   .t-toast {
     opacity: 0;
     transform: translateY(var(--toast-distance)) scale(var(--toast-scale));
-    filter: blur(var(--toast-blur));
-    will-change: transform, opacity, filter;
     transition:
       opacity var(--toast-close) var(--toast-ease),
-      transform var(--toast-close) var(--toast-ease),
-      filter var(--toast-close) var(--toast-ease);
+      transform var(--toast-close) var(--toast-ease);
   }
   .t-toast.is-open {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
     transition:
       opacity var(--toast-open) var(--toast-ease),
-      transform var(--toast-open) var(--toast-ease),
-      filter var(--toast-open) var(--toast-ease);
+      transform var(--toast-open) var(--toast-ease);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -249,8 +253,29 @@
      React. What carries over is the visual grammar its components share, a
      ring on focus rather than a bare outline, and a pressed state that dips
      the control slightly. */
-  .btn-press { transition: transform 120ms var(--panel-ease), filter 120ms var(--panel-ease); }
-  .btn-press:active { transform: scale(0.96); }
+  /* Press feedback on anything pressable, which is what the guidance asks for,
+     rather than only the play button. 0.97 and 140ms sit inside the
+     recommended 0.95-0.98 and 100-160ms. */
+  .btn-press,
+  #topnav button,
+  #sheet-body button,
+  #sheet-close,
+  #p-prev, #p-next, #p-close,
+  [data-close-card] {
+    transition: transform 140ms var(--panel-ease), background-color 140ms var(--panel-ease), color 140ms var(--panel-ease);
+  }
+  .btn-press:active,
+  #topnav button:active,
+  #sheet-body button:active,
+  #sheet-close:active,
+  #p-prev:active, #p-next:active, #p-close:active,
+  [data-close-card]:active {
+    transform: scale(0.97);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-press, #topnav button, #sheet-body button, #sheet-close,
+    #p-prev, #p-next, #p-close, [data-close-card] { transition: none !important; }
+  }
   .ring-focus:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgba(38,23,14,.9), 0 0 0 4px rgba(255,255,255,.85);
